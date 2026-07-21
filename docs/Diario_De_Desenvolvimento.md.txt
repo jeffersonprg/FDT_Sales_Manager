@@ -1,0 +1,50 @@
+# 17/07/2026
+
+## Objetivo
+Iniciar o projeto.
+
+## Atividades realizadas
+- Definição dos requisitos.
+- Escolha das tecnologias.
+- Estrutura inicial da documentação.
+
+## Decisões
+- Interface: CustomTkinter.
+- Banco de dados: SQLite.
+- Organização em módulos.
+
+## Próximo passo
+Criar a estrutura de pastas e configurar o ambiente.
+
+____
+
+# 20/07/2026
+
+# Dia 02 – Arquitetura do Projeto
+
+## Objetivo
+
+Definir a arquitetura e a organização das pastas antes do início da implementação.
+
+## Atividades realizadas
+
+- Definida a estrutura de diretórios do projeto.
+- Separação das camadas (Views, Models, Controllers e Services).
+- Organização da documentação desde o início do desenvolvimento.
+
+## Decisões técnicas
+
+Foi adotada uma arquitetura modular para facilitar a manutenção, reutilização do código e futura expansão do sistema.
+
+## Conhecimentos adquiridos
+
+- Importância da separação de responsabilidades.
+- Organização de projetos Python de médio porte.
+
+## Problemas encontrados
+
+Nenhum.
+
+## Próxima atividade
+
+Configurar o ambiente de desenvolvimento, criar o ambiente virtual, instalar as dependências e iniciar o repositório Git.
