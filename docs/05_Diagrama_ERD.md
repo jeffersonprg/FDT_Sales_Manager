@@ -1,14 +1,16 @@
 # Diagrama Entidade-Relacionamento (ERD)
 
-# Objetivo
+## Objetivo
 
+Representar visualmente as entidades do sistema e os seus relacionamentos antes da implementação da base de dados.
 
 ```mermaid
 erDiagram
 
     CLIENTE ||--o{ PEDIDO : realiza
-    PRODUTO ||--o{ PEDIDO : contem
-    LEAD ||--|| CLIENTE : converte-se
+    PEDIDO ||--|{ ITEM_PEDIDO : contem
+    PRODUTO ||--o{ ITEM_PEDIDO : incluido_em
+    CLIENTE o|--o{ LEAD : originou
 
     CLIENTE {
         int id PK
@@ -27,17 +29,28 @@ erDiagram
         string categoria
         decimal preco
         string descricao
+        string tipo_validade
+        int duracao_dias
         boolean ativo
     }
 
     PEDIDO {
         int id PK
         int cliente_id FK
+        datetime data
+        string estado
+        decimal total
+    }
+
+    ITEM_PEDIDO {
+        int id PK
+        int pedido_id FK
         int produto_id FK
         int quantidade
-        decimal valor_total
-        date data
-        string estado
+        decimal preco_unitario
+        decimal subtotal
+        date inicio_acesso
+        date fim_acesso
     }
 
     LEAD {
@@ -47,6 +60,34 @@ erDiagram
         string email
         string origem
         string estado
+        int cliente_id FK
         string observacoes
     }
 ```
+
+## Regra de validade dos produtos
+
+Um produto pode possuir:
+
+### Validade temporária
+
+```text
+tipo_validade: TEMPORARIO
+duracao_dias: 365
+```
+
+O sistema calcula:
+
+```text
+fim_acesso = inicio_acesso + duracao_dias
+```
+
+### Acesso vitalício
+
+```text
+tipo_validade: VITALICIO
+duracao_dias: NULL
+fim_acesso: NULL
+```
+
+As datas efetivas de acesso são armazenadas em `ITEM_PEDIDO`, pois representam a aquisição específica realizada pelo cliente.

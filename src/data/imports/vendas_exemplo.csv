@@ -1,0 +1,6 @@
+data,nome_cliente,morada,informacao_cliente,pedido,produto,quantidade,preco_unitario,faturacao
+2026-07-15,João Silva,"Rua A, Porto","Cliente particular",PED-001,Curso Python,1,299.00,299.00
+2026-07-16,Maria Santos,"Rua B, Lisboa","Cliente empresarial",PED-002,Mentoria Python,1,500.00,500.00
+2026-07-17,João Silva,"Rua A, Porto","Cliente particular",PED-003,Curso Python,2,299.00,598.00
+2026-07-18,Ana Costa,"Rua C, Braga","Novo cliente",PED-004,Curso Python,1,299.00,299.00
+2026-07-19,Carlos Mendes,"Rua D, Aveiro","Cliente recorrente",PED-005,Mentoria Python,2,500.00,1000.00
