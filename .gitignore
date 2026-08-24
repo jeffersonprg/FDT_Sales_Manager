@@ -22,6 +22,7 @@ dist/
 # Banco de dados local
 *.db
 *.sqlite3
+src/data/backups/
 
 # Configurações do VS Code
 .vscode/
@@ -35,3 +36,8 @@ Thumbs.db
 
 # Arquivos temporários
 *.tmp
+
+# Testes
+.pytest_cache/
+.pytest_tmp/
+tests/_temp_databases/

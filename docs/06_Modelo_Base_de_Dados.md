@@ -1,145 +1,82 @@
-## Modelo da Base de Dados
-- Tabela: clientes
+# Modelo da Base de Dados
 
-Campo	    Tipo        SQLite	        Restrições
-id	        INTEGER	    PRIMARY KEY     AUTOINCREMENT
-nome	    TEXT	    NOT NULL
-morada	    TEXT	    NOT NULL
-telefone	TEXT	
-email	    TEXT	
-nif	        TEXT	
-observacoes	TEXT	
-criado_em	TEXT	    NOT NULL
+## clientes
 
+| Campo | Tipo | Regras principais |
+|---|---|---|
+| id | INTEGER | PK, autoincremento |
+| nome | TEXT | obrigatório, não vazio |
+| empresa | TEXT | opcional |
+| morada | TEXT | opcional |
+| telefone | TEXT | opcional |
+| email | TEXT | opcional, único sem diferenciar caixa |
+| pais | TEXT | obrigatório, padrão `Portugal` |
+| tipo_documento | TEXT | opcional |
+| numero_documento | TEXT | opcional, único sem diferenciar caixa |
+| estado | TEXT | `ATIVO` ou `INATIVO` |
+| observacoes | TEXT | opcional |
+| criado_em | TIMESTAMP | preenchimento automático |
+| atualizado_em | TIMESTAMP | preenchimento automático |
 
-- Tabela: produtos
+## produtos
 
-Campo	        Tipo        SQLite	        Restrições
-id	            INTEGER	    PRIMARY KEY     AUTOINCREMENT
-nome	        TEXT	    NOT NULL
-categoria	    TEXT	
-preco	        REAL	    NOT NULL
-descricao	    TEXT
-tipo_validade	TEXT	    NOT NULL
-duracao_dias	INTEGER	
-ativo	        INTEGER	    DEFAULT 1
+| Campo | Tipo | Regras principais |
+|---|---|---|
+| id | INTEGER | PK, autoincremento |
+| nome | TEXT | obrigatório e único sem diferenciar caixa |
+| categoria | TEXT | opcional |
+| preco | REAL | maior ou igual a zero |
+| descricao | TEXT | opcional |
+| tipo_validade | TEXT | `TEMPORARIO` ou `VITALICIO` |
+| duracao_dias | INTEGER | positivo apenas para temporários |
+| ativo | INTEGER | `0` ou `1` |
 
+## pedidos
 
+| Campo | Tipo | Regras principais |
+|---|---|---|
+| id | INTEGER | PK, autoincremento |
+| cliente_id | INTEGER | FK para clientes, exclusão restrita |
+| referencia_externa | TEXT | opcional e única sem diferenciar caixa |
+| data_pedido | TIMESTAMP | obrigatória |
+| estado | TEXT | `PENDENTE`, `PAGO` ou `CANCELADO` |
+| total | REAL | maior ou igual a zero |
+| observacoes | TEXT | opcional |
+| pago_em | TIMESTAMP | obrigatório quando pago |
+| cancelado_em | TIMESTAMP | preenchido no cancelamento |
+| criado_em | TIMESTAMP | preenchimento automático |
+| atualizado_em | TIMESTAMP | preenchimento automático |
 
+## itens_pedido
 
-- Tabela: pedidos
+| Campo | Tipo | Regras principais |
+|---|---|---|
+| id | INTEGER | PK, autoincremento |
+| pedido_id | INTEGER | FK para pedidos, exclusão em cascata |
+| produto_id | INTEGER | FK para produtos, exclusão restrita |
+| quantidade | INTEGER | maior que zero |
+| preco_unitario | REAL | maior ou igual a zero |
+| subtotal | REAL | maior ou igual a zero |
+| inicio_acesso | DATE | definido no pagamento |
+| fim_acesso | DATE | opcional; nunca anterior ao início |
 
-Um pedido representa uma venda.
+Cada produto só pode aparecer uma vez por pedido.
 
-Ele pertence a um cliente, mas pode conter vários produtos.
+## leads
 
-Campo	    Tipo
-id	        INTEGER
-cliente_id	INTEGER
-data	    TEXT
-estado	    TEXT
-total	    REAL
+| Campo | Tipo | Regras principais |
+|---|---|---|
+| id | INTEGER | PK, autoincremento |
+| nome | TEXT | obrigatório e não vazio |
+| empresa, telefone, email, origem | TEXT | opcionais |
+| estado | TEXT | estado válido do funil |
+| produto_interesse_id | INTEGER | FK opcional para produtos |
+| cliente_id | INTEGER | FK preenchida após conversão |
+| observacoes | TEXT | opcional |
+| convertido_em | TIMESTAMP | obrigatório quando convertido |
+| criado_em, atualizado_em | TIMESTAMP | preenchimento automático |
 
+## schema_migrations
 
-- Tabela: itens_pedido
-
-Esta tabela liga Pedidos e Produtos.
-
-Campo	            Tipo        Restrições
-id	                INTEGER     PRIMARY KEY AUTOINCREMENT
-pedido_id	        INTEGER     FOREIGN KEY
-produto_id	        INTEGER     FOREIGN KEY
-quantidade	        INTEGER     NOT NULL
-preco_unitario	    REAL        NOT NULL
-subtotal	        REAL        NOT NULL
-inicio_acesso	    TEXT	    NOT NULL
-fim_acesso	        TEXT
-
-
-- Tabela: leads
-Campo	        Tipo
-id	            INTEGER
-nome	        TEXT
-telefone	    TEXT
-email	        TEXT
-origem	        TEXT
-estado	        TEXT
-observacoes 	TEXT
-
-___________
-CLIENTES
-
-id
-
-↓
-
-PEDIDOS
-
-cliente_id
-
-↓
-
-ITENS_PEDIDO
-
-pedido_id
-
-↓
-
-PRODUTOS
-
-produto_id
-
-___
-## Chaves estrangeiras
-
-- Pedido
-cliente_id
-
-↓
-
-clientes.id
-
-- Item Pedido
-pedido_id
-
-↓
-
-pedidos.id
-
-- Produto
-produto_id
-
-↓
-
-produtos.id
-
-
-_______
-
-## Fluxo do sistema
-
-Cliente
-
-↓
-
-Novo Pedido
-
-↓
-
-Adicionar Produtos
-
-↓
-
-Calcular Total
-
-↓
-
-Guardar Pedido
-
-↓
-
-Atualizar Dashboard
-
-↓
-
-Relatório HTML
+Registra cada versão de migração aplicada, garantindo idempotência e evolução
+segura da base existente.

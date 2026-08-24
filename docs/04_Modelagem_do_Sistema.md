@@ -2,132 +2,59 @@
 
 ## Cliente
 
-Descrição:
-Representa uma pessoa ou empresa que realizou compras.
+Representa uma pessoa ou empresa relacionada ao MiniCRM.
 
-### Campos
+Campos: `id`, `nome`, `empresa`, `morada`, `telefone`, `email`, `pais`,
+`tipo_documento`, `numero_documento`, `estado`, `observacoes`, `criado_em` e
+`atualizado_em`.
 
-- id
-- nome
-- morada
-- telefone
-- email
-- nif
-- observacoes
-- criado_em
-
----
+O estado pode ser `ATIVO` ou `INATIVO`. A remoção normal é lógica.
 
 ## Produto
 
-Representa um produto ou serviço comercializado pela FDT.
+Representa um produto ou serviço comercializado.
 
-Os produtos podem ter diferentes regras de validade de acesso. Por exemplo:
+Campos: `id`, `nome`, `categoria`, `preco`, `descricao`, `tipo_validade`,
+`duracao_dias` e `ativo`.
 
-- Acesso temporário, como 3, 6 ou 12 meses;
-- Acesso vitalício, sem data de expiração.
+`tipo_validade` aceita `TEMPORARIO` ou `VITALICIO`. Produtos temporários exigem
+uma duração positiva; produtos vitalícios não possuem duração em dias.
 
-### Campos
+## Pedido
 
-- id
-- nome
-- categoria
-- preco
-- descricao
-- tipo_validade
-- duracao_dias
-- ativo
+Representa uma operação comercial de um cliente.
 
-### Tipo de validade
+Campos: `id`, `cliente_id`, `referencia_externa`, `data_pedido`, `estado`,
+`total`, `observacoes`, `pago_em`, `cancelado_em`, `criado_em` e
+`atualizado_em`.
 
-O campo `tipo_validade` poderá assumir, inicialmente, os seguintes valores:
-
-- `TEMPORARIO`
-- `VITALICIO`
-
-### Duração
-
-O campo `duracao_dias` será utilizado quando o produto possuir validade temporária.
-
-Exemplos:
-
-| Produto | Tipo de validade | Duração |
-|---|---|---:|
-| Curso de Python | TEMPORARIO | 365 dias |
-| Mentoria | TEMPORARIO | 90 dias |
-| Curso Premium | VITALICIO | Não aplicável |
-
-Para produtos vitalícios, `duracao_dias` poderá ser `NULL`.
-
----
+Estados: `PENDENTE`, `PAGO` e `CANCELADO`. Apenas pedidos pagos compõem a
+faturação e concedem acesso.
 
 ## ItemPedido
 
-Representa um produto específico incluído em um pedido.
+Representa um produto incluído no pedido.
 
-Além das informações comerciais da compra, armazena o período efetivo de acesso adquirido pelo cliente.
+Campos: `id`, `pedido_id`, `produto_id`, `quantidade`, `preco_unitario`,
+`subtotal`, `inicio_acesso` e `fim_acesso`.
 
-### Campos
-
-- id
-- pedido_id
-- produto_id
-- quantidade
-- preco_unitario
-- subtotal
-- inicio_acesso
-- fim_acesso
-
-### Datas de acesso
-
-O período de acesso é registrado no momento da compra.
-
-Exemplo:
-
-Produto:
-
-Curso de Python
-
-Validade:
-
-365 dias
-
-Compra:
-
-01/08/2026
-
-Resultado:
-
-- inicio_acesso: 01/08/2026
-- fim_acesso: 01/08/2027
-
-Para produtos vitalícios:
-
-- inicio_acesso: data da compra
-- fim_acesso: NULL
-
----
+O preço unitário é o valor negociado na venda. O período de acesso é definido
+no pagamento. Para validade vitalícia, `fim_acesso` é nulo.
 
 ## Lead
 
 Representa um potencial cliente.
 
-### Campos
+Campos: `id`, `nome`, `empresa`, `telefone`, `email`, `origem`, `estado`,
+`produto_interesse_id`, `cliente_id`, `observacoes`, `convertido_em`,
+`criado_em` e `atualizado_em`.
 
-- id
-- nome
-- telefone
-- email
-- origem
-- estado
-- observacoes
-
----
+Estados: `NOVO`, `CONTACTADO`, `QUALIFICADO`, `CONVERTIDO` e `PERDIDO`.
 
 ## Relações
 
-Cliente 1:N Pedido
-
-Produto 1:N Pedido
-
-Lead -> Cliente
+- Cliente 1:N Pedido
+- Pedido 1:N ItemPedido
+- Produto 1:N ItemPedido
+- Produto 1:N Lead como interesse opcional
+- Cliente 1:N Lead convertido

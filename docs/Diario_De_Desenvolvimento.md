@@ -257,3 +257,584 @@ A coluna foi convertida explicitamente para o tipo datetime utilizando pd.to_dat
 ### Próxima atividade
 
 - Validar os valores presentes nas colunas e identificar dados vazios ou inválidos.
+
+____
+
+# 24/07/2026 - 2h
+
+# Dia 7
+
+## Atividade — Verificação de valores ausentes, Validação de valores numéricos e Validação da consistência da faturação
+
+### Objetivo
+
+Identificar campos vazios ou valores ausentes no ficheiro CSV antes da realização da análise.
+Verificar se os valores numéricos relacionados às vendas são válidos.
+Verificar se o valor de faturação de cada venda corresponde à quantidade de produtos multiplicada pelo preço unitário.
+
+
+### Atividades realizadas
+
+- Utilizada a função `isnull()` do Pandas.
+- Contabilizados os valores ausentes em cada coluna.
+- Testado o ficheiro CSV de exemplo.
+- Verificadas quantidades negativas.
+- Verificados preços unitários negativos.
+- Verificados valores de faturação negativos.
+- Testado o ficheiro CSV de exemplo.
+- Calculado o valor esperado da faturação.
+- Comparado o valor calculado com o valor presente no CSV.
+- Criada uma coluna de controlo indicando se cada venda é consistente.
+- Testado o ficheiro CSV de exemplo.
+
+
+### Resultado
+
+O ficheiro CSV de exemplo não possui valores ausentes.
+
+Todas as colunas apresentaram:
+
+```text```
+0 valores ausentes
+
+## Conhecimentos adquiridos
+
+- Identificação de valores ausentes em DataFrames.
+- Utilização de isnull() e sum() para contabilizar dados em falta.
+- Importância da qualidade dos dados antes da análise.
+
+____
+
+# 25/07/2026 - 2h
+
+# Dia 8
+
+## Atividade — Separação do módulo de validação e Criação da conexão com a base de dados SQLite
+
+### Objetivo
+
+Separar a leitura dos dados da lógica de validação, melhorando a organização e a manutenção do código.
+Criar a conexão inicial com a base de dados SQLite que será utilizada pelo MiniCRM.
+
+### Atividades realizadas
+
+- Criado o ficheiro `validator.py`.
+- Criada a função `validar_colunas()`.
+- Criada a função `validar_valores_ausentes()`.
+- Criada a função `validar_valores_negativos()`.
+- Criada a função `validar_faturacao()`.
+- Alterado o `csv_reader.py` para utilizar as funções do módulo de validação.
+- Testado o funcionamento conjunto dos módulos.
+- Criado o módulo `src/database/database.py`.
+- Utilizada a biblioteca `sqlite3`, incluída nativamente no Python.
+- Criada uma função responsável por estabelecer a conexão com a base de dados.
+- Configurado o SQLite para utilizar `Row` como factory de resultados.
+- Ativada a verificação de chaves estrangeiras através de `PRAGMA foreign_keys = ON`.
+- Criado o ficheiro local da base de dados `fdt_sales_manager.db`.
+- Testada a conexão com sucesso.
+
+
+### Estrutura atual
+
+```text```
+src/
+├── csv_reader.py
+├── validator.py
+└── data/
+│   └── imports/
+│       └── vendas_exemplo.csv
+│   └── fdt_sales_manager.db
+├── database/
+│   └── database.py
+
+### Resultado
+
+O sistema conseguiu ler e validar corretamente os dados do ficheiro CSV.
+A conexão com a base de dados SQLite foi estabelecida com sucesso.
+
+### Decisão técnica
+
+A lógica de validação foi separada da lógica de leitura do ficheiro CSV.
+
+Essa separação permite reutilizar o módulo de validação futuramente durante a importação de dados para o MiniCRM.
+
+### Conhcimentos adquiridos
+- Organização de código em módulos.
+- Criação e utilização de funções.
+- Importação de funções entre ficheiros Python.
+- Separação de responsabilidades.
+
+### Problema encontrado
+
+Inicialmente, o teste não apresentou qualquer resultado porque as alterações no ficheiro Python não tinham sido guardadas antes da execução.
+
+## Solução
+
+O ficheiro foi guardado e o teste foi executado novamente com sucesso.
+
+### Próxima atividade
+
+Criar a tabela clientes na base de dados SQLite.
+
+_____
+
+# 27/07/2026
+
+# Dia 9
+
+## Atividade — Criação da conexão com a base de dados SQLite e Criação da tabela de clientes
+
+### Objetivo
+
+Criar a conexão inicial com a base de dados SQLite que será utilizada pelo MiniCRM.
+Criar a primeira tabela do MiniCRM para armazenar os dados dos clientes.
+
+### Atividades realizadas
+
+- Criado o módulo `src/database/database.py`.
+- Utilizada a biblioteca `sqlite3`, incluída nativamente no Python.
+- Criada uma função responsável por estabelecer a conexão com a base de dados.
+- Configurado o SQLite para utilizar `Row` como factory de resultados.
+- Ativada a verificação de chaves estrangeiras através de `PRAGMA foreign_keys = ON`.
+- Criado o ficheiro local da base de dados `fdt_sales_manager.db`.
+- Testada a conexão com sucesso.
+- Criada a função `create_tables()`.
+- Criada a tabela `clientes` utilizando SQL.
+- Utilizado `CREATE TABLE IF NOT EXISTS` para evitar erros caso a tabela já exista.
+- Utilizado `PRIMARY KEY AUTOINCREMENT` para gerar identificadores automaticamente.
+- Definido o campo `nome` como obrigatório através de `NOT NULL`.
+- Utilizado `CURRENT_TIMESTAMP` para registar automaticamente a data de criação.
+- Executado o teste de criação da tabela com sucesso.
+
+### Estrutura atual
+
+```text```
+src/
+├── database/
+│   └── database.py
+└── data/
+    └── fdt_sales_manager.db
+
+
+###   Resultado
+
+A conexão com a base de dados SQLite foi estabelecida com sucesso.
+
+## Problema encontrado
+
+Inicialmente, o teste não apresentou qualquer resultado porque as alterações no ficheiro Python não tinham sido guardadas antes da execução.
+
+## Solução
+
+O ficheiro foi guardado e o teste foi executado novamente com sucesso.
+
+###   Conhecimentos adquiridos
+- Utilização do módulo sqlite3.
+- Criação de uma conexão com uma base de dados SQLite.
+- Utilização da biblioteca pathlib para construir caminhos de ficheiros.
+- Importância de guardar as alterações antes de executar o código.
+
+____
+
+# 28/07/2026
+
+# Dia 10
+
+### Atividades realizadas:
+
+- Criada a classe Cliente utilizando @dataclass.
+- Adicionados type hints (Optional e datetime) para melhorar a legibilidade e a segurança do código.
+- Definido o modelo de domínio da entidade Cliente.
+- Realizado teste de instanciação do objeto Cliente, confirmando o funcionamento da dataclass.
+- Iniciada a arquitetura em camadas (Model → Service → Base de Dados), preparando a implementação do CRUD de clientes.
+
+
+___
+
+# 29/07/2026
+
+# Dia 11
+
+### Atividades realizadas
+- Implementado o ClienteService.
+- Desenvolvido o método criar_cliente().
+- Integrado o Model Cliente com a base de dados SQLite.
+- Realizado o primeiro INSERT utilizando a arquitetura em camadas.
+- Confirmada a persistência dos dados através de testes na base de dados.
+- Corrigidos problemas de indentação e validado o fluxo completo de gravação.
+- Implementado o método listar_clientes().
+- Desenvolvida a conversão de registros SQLite (sqlite3.Row) para objetos Cliente.
+- Validado o primeiro método de leitura da base de dados.
+- Confirmado o funcionamento do CRUD (operações Create e Read).
+- Identificada e corrigida uma falha causada por arquivo não salvo durante os testes.
+- Iniciada a refatoração do ClienteService para eliminar duplicação de código (princípio DRY).
+
+______
+
+# 30/07/2026
+
+# Dia 12
+
+### Atividades realizadas
+
+- Implementado o método buscar_cliente().
+- Utilizado fetchone() para recuperação de um único registo.
+- Tratamento de clientes inexistentes através do retorno None.
+- Reutilizado o método _row_para_cliente(), eliminando duplicação de código.
+- Validado o funcionamento da pesquisa por ID.
+- Implementado o método atualizar_cliente().
+- Desenvolvida a operação UPDATE na base de dados SQLite.
+- Atualização automática do campo atualizado_em.
+- Validado o ciclo completo de edição de clientes.
+- Concluídas as operações de criação, leitura e atualização do CRUD.
+
+____
+
+# 31/07/2026
+
+## Dia 13 — Início dos testes automatizados
+
+### Objetivo
+
+Substituir os scripts manuais por testes automatizados, isolados e repetíveis.
+
+### Atividades realizadas
+
+- Instalado e configurado o pytest.
+- Criada a pasta `tests`.
+- Removidos os antigos scripts manuais de teste da pasta `src`.
+- Implementado o teste do modelo `Cliente`.
+- Implementados testes das operações de criação, pesquisa, listagem,
+  atualização e remoção de clientes.
+- Criada uma base de dados SQLite exclusiva para cada teste.
+- Utilizado `monkeypatch` para redirecionar temporariamente o caminho da base de
+  dados.
+- Configurada a pasta temporária utilizada pelos testes.
+
+### Resultado
+
+```text
+6 passed
+```
+
+____
+
+# 03/08/2026
+
+## Dia 14 — Modelo de produtos
+
+### Objetivo
+
+Implementar a representação dos produtos comercializados no MiniCRM.
+
+### Atividades realizadas
+
+- Criada a tabela `produtos` na base de dados.
+- Criado o model `Produto` com `dataclass`.
+- Implementadas validações para nome e preço.
+- Implementadas as regras de validade temporária e vitalícia.
+- Normalizado o campo `tipo_validade`.
+- Criados testes para produtos válidos e inválidos.
+
+____
+
+# 04/08/2026
+
+## Dia 15 — Serviço de produtos
+
+### Objetivo
+
+Disponibilizar as operações de gestão de produtos.
+
+### Atividades realizadas
+
+- Implementado o `ProdutoService`.
+- Adicionadas as operações de criação, pesquisa, listagem e atualização.
+- Implementada a desativação lógica de produtos.
+- Definida a regra que impede a utilização de produtos desativados em novas
+  operações, preservando o histórico.
+- Ampliados os testes automatizados do módulo de produtos.
+
+____
+
+# 05/08/2026
+
+## Dia 16 — Modelos de pedidos e itens
+
+### Objetivo
+
+Representar vendas com um ou mais produtos.
+
+### Atividades realizadas
+
+- Criadas as tabelas `pedidos` e `itens_pedido`.
+- Implementados os models `Pedido` e `ItemPedido`.
+- Implementada a validação de que um pedido deve possuir pelo menos um item.
+- Implementado o cálculo automático do subtotal de cada item.
+- Implementado o cálculo do total do pedido.
+- Criados testes das regras dos models de pedidos.
+
+____
+
+# 06/08/2026
+
+## Dia 17 — Serviço de pedidos
+
+### Objetivo
+
+Implementar o fluxo de persistência e consulta dos pedidos.
+
+### Atividades realizadas
+
+- Implementado o `PedidoService`.
+- Adicionada a gravação transacional de pedidos e respetivos itens.
+- Implementadas a pesquisa e a listagem de pedidos.
+- Implementada a atualização do estado dos pedidos.
+- Adicionado rollback completo quando ocorre um erro durante a transação.
+- Criados testes para persistência, consulta e falhas transacionais.
+
+____
+
+# 07/08/2026
+
+## Dia 18 — Gestão de leads
+
+### Objetivo
+
+Criar a estrutura inicial para acompanhamento de potenciais clientes.
+
+### Atividades realizadas
+
+- Criada a tabela `leads`.
+- Implementado o model `Lead`.
+- Implementado o `LeadService`.
+- Adicionadas as operações de criação, pesquisa e atualização.
+- Implementada a alteração do estado dos leads.
+- Criados testes automatizados para o model e o serviço.
+
+____
+
+# 10/08/2026
+
+## Dia 19 — Conversão de leads
+
+### Objetivo
+
+Permitir a conversão segura de um lead em cliente.
+
+### Atividades realizadas
+
+- Implementada a conversão de lead em cliente.
+- Associado o lead convertido ao cliente criado.
+- Agrupada a conversão numa única transação.
+- Implementado rollback para impedir registos parciais em caso de erro.
+- Criados testes para conversões válidas, repetidas e interrompidas.
+
+____
+
+# 11/08/2026
+
+## Dia 20 — Períodos de acesso
+
+### Objetivo
+
+Calcular e consultar o acesso concedido pelos produtos adquiridos.
+
+### Atividades realizadas
+
+- Implementado o cálculo automático do período de acesso.
+- Definidas datas de início e fim para produtos temporários.
+- Representado o acesso vitalício sem data de fim.
+- Implementado o `AcessoService`.
+- Adicionadas consultas de acessos ativos, expirados e vitalícios.
+- Criados testes para as diferentes regras de validade.
+
+____
+
+# 12/08/2026
+
+## Dia 21 — Indicadores do dashboard
+
+### Objetivo
+
+Disponibilizar os primeiros indicadores comerciais do MiniCRM.
+
+### Atividades realizadas
+
+- Implementado o `DashboardService`.
+- Adicionados totais de clientes, produtos, leads e pedidos.
+- Implementado o cálculo de faturação com base nos pedidos pagos.
+- Garantido que pedidos não pagos não entram na faturação.
+- Criados testes dos indicadores e dos filtros utilizados no dashboard.
+
+____
+
+# 13/08/2026
+
+## Dia 22 — Consultas e resumo comercial
+
+### Objetivo
+
+Facilitar a localização de registos e a consulta do histórico de clientes.
+
+### Atividades realizadas
+
+- Implementado o resumo comercial individual de clientes.
+- Adicionadas pesquisas de clientes, produtos e leads.
+- Integradas informações de pedidos e acessos no resumo do cliente.
+- Padronizada a conversão dos registos SQLite para objetos de domínio.
+- Adicionados testes das pesquisas e dos resumos comerciais.
+
+____
+
+# 14/08/2026
+
+## Dia 23 — Integração do núcleo do MiniCRM
+
+### Objetivo
+
+Validar o funcionamento conjunto dos models, serviços e regras de negócio.
+
+### Atividades realizadas
+
+- Criado um teste integrado do fluxo completo do MiniCRM.
+- Testados models, services e restrições da base de dados.
+- Testadas as transações, pesquisas, regras de acesso e indicadores.
+- Corrigidas inconsistências encontradas durante os testes integrados.
+- Confirmada a estabilidade da primeira versão funcional do backend.
+
+### Resultado
+
+```text
+101 passed
+```
+
+____
+
+# 17/08/2026
+
+## Dia 24 — Reforço das validações
+
+### Objetivo
+
+Impedir a persistência de dados inválidos no backend.
+
+### Atividades realizadas
+
+- Adicionadas validações completas para clientes e produtos.
+- Reforçadas as validações de pedidos e itens de pedido.
+- Configurada a revalidação dos dados nos models e nos serviços antes da
+  persistência.
+- Adicionados testes para campos obrigatórios, valores inválidos e limites das
+  regras de negócio.
+
+____
+
+# 18/08/2026
+
+## Dia 25 — Unicidade e desativação lógica
+
+### Objetivo
+
+Evitar duplicações e preservar o histórico dos registos.
+
+### Atividades realizadas
+
+- Implementada a unicidade case-insensitive de emails e documentos de clientes.
+- Implementada a unicidade case-insensitive de nomes de produtos.
+- Substituída a exclusão física de clientes por desativação lógica.
+- Adicionadas operações de reativação de clientes e produtos.
+- Ajustados os serviços para utilizar rollback e fechamento garantido das
+  ligações à base de dados.
+- Criados testes de duplicação, desativação e reativação.
+
+____
+
+# 19/08/2026
+
+## Dia 26 — Ciclo de pagamento e cancelamento
+
+### Objetivo
+
+Controlar de forma consistente as mudanças de estado dos pedidos.
+
+### Atividades realizadas
+
+- Implementados os campos `pago_em` e `cancelado_em`.
+- Definidas as transições permitidas entre os estados dos pedidos.
+- Impedidas transições inválidas ou incompatíveis com o estado atual.
+- Implementada a unicidade case-insensitive das referências externas.
+- Criados testes para pagamento, cancelamento e referências duplicadas.
+
+____
+
+# 20/08/2026
+
+## Dia 27 — Ajustes das regras de acesso
+
+### Objetivo
+
+Alinhar o período de acesso com a data efetiva do pagamento.
+
+### Atividades realizadas
+
+- Transferido o início do acesso da data do pedido para a data do pagamento.
+- Garantido que apenas pedidos pagos concedem acesso aos produtos.
+- Ajustada a validade temporária para representar exatamente o número de dias
+  contratado.
+- Mantida a ausência de data final para produtos vitalícios.
+- Atualizados os testes do ciclo de pagamento e dos períodos de acesso.
+
+____
+
+# 21/08/2026
+
+## Dia 28 — Faturação, estatísticas e dashboard
+
+### Objetivo
+
+Expandir os indicadores comerciais disponíveis no sistema.
+
+### Atividades realizadas
+
+- Criado o serviço de faturação com filtros por período.
+- Criado o serviço de estatísticas e vendas por produto.
+- Adicionado o produto mais vendido ao dashboard.
+- Adicionada a listagem dos últimos pedidos.
+- Ajustado o total do dashboard para considerar apenas clientes ativos.
+- Criados testes de faturação, estatísticas e indicadores.
+
+____
+
+# 24/08/2026
+
+## Dia 29 — Migrações e estabilização do backend
+
+### Objetivo
+
+Concluir e endurecer o backend antes da integração do CSV e dos relatórios HTML.
+
+### Atividades realizadas
+
+- Criado o controlo incremental de migrações do SQLite através da tabela
+  `schema_migrations`.
+- Preparados os índices únicos case-insensitive exigidos pelas novas regras.
+- Validada a migração sobre uma cópia da base existente antes da aplicação.
+- Criado um backup da base anterior à migração.
+- Executada a suíte completa de testes automatizados.
+- Validada a integridade da base atualizada.
+- Atualizada a documentação técnica do backend.
+
+### Resultado
+
+```text
+129 passed
+```
+
+O banco atualizado foi validado com `integrity_check=ok` e sem violações de
+chaves estrangeiras.
+
+### Próxima atividade
+
+Integrar a importação CSV aos serviços do MiniCRM, com prevenção de duplicações,
+transações e resumo da importação.

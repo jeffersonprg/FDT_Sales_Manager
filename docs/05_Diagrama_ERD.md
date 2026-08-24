@@ -1,34 +1,28 @@
-# Diagrama Entidade-Relacionamento (ERD)
-
-## Objetivo
-
-Representar visualmente as entidades do sistema e os seus relacionamentos antes da implementação da base de dados.
+# Diagrama Entidade-Relacionamento
 
 ```mermaid
 erDiagram
-
     CLIENTE ||--o{ PEDIDO : realiza
     PEDIDO ||--|{ ITEM_PEDIDO : contem
-    PRODUTO ||--o{ ITEM_PEDIDO : incluido_em
-    CLIENTE o|--o{ LEAD : originou
+    PRODUTO ||--o{ ITEM_PEDIDO : vendido_em
+    PRODUTO o|--o{ LEAD : desperta_interesse
+    CLIENTE o|--o{ LEAD : resulta_da_conversao
 
     CLIENTE {
         int id PK
         string nome
-        string morada
-        string telefone
-        string email
-        string nif
-        string observacoes
+        string empresa
+        string email UK
+        string numero_documento UK
+        string estado
         datetime criado_em
+        datetime atualizado_em
     }
 
     PRODUTO {
         int id PK
-        string nome
-        string categoria
+        string nome UK
         decimal preco
-        string descricao
         string tipo_validade
         int duracao_dias
         boolean ativo
@@ -37,9 +31,12 @@ erDiagram
     PEDIDO {
         int id PK
         int cliente_id FK
-        datetime data
+        string referencia_externa UK
+        datetime data_pedido
         string estado
         decimal total
+        datetime pago_em
+        datetime cancelado_em
     }
 
     ITEM_PEDIDO {
@@ -56,38 +53,13 @@ erDiagram
     LEAD {
         int id PK
         string nome
-        string telefone
         string email
-        string origem
         string estado
+        int produto_interesse_id FK
         int cliente_id FK
-        string observacoes
+        datetime convertido_em
     }
 ```
 
-## Regra de validade dos produtos
-
-Um produto pode possuir:
-
-### Validade temporária
-
-```text
-tipo_validade: TEMPORARIO
-duracao_dias: 365
-```
-
-O sistema calcula:
-
-```text
-fim_acesso = inicio_acesso + duracao_dias
-```
-
-### Acesso vitalício
-
-```text
-tipo_validade: VITALICIO
-duracao_dias: NULL
-fim_acesso: NULL
-```
-
-As datas efetivas de acesso são armazenadas em `ITEM_PEDIDO`, pois representam a aquisição específica realizada pelo cliente.
+As datas efetivas de acesso ficam em `ITEM_PEDIDO` porque pertencem à aquisição,
+e não à definição atual do produto.
