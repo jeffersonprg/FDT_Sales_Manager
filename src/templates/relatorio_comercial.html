@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="pt">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{ titulo }}</title>
+  <style>
+    :root {
+      --navy: #0f172a;
+      --blue: #2563eb;
+      --teal: #0f766e;
+      --slate: #475569;
+      --muted: #64748b;
+      --line: #e2e8f0;
+      --surface: #ffffff;
+      --background: #f8fafc;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--background);
+      color: var(--navy);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+      line-height: 1.5;
+    }
+    .page { max-width: 1180px; margin: 0 auto; padding: 40px 28px 64px; }
+    .hero {
+      padding: 34px;
+      border-radius: 22px;
+      color: white;
+      background: linear-gradient(135deg, #0f172a, #1d4ed8 68%, #0f766e);
+      box-shadow: 0 18px 45px rgba(15, 23, 42, .18);
+    }
+    .eyebrow { margin: 0 0 8px; color: #bfdbfe; font-size: 13px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; }
+    h1 { margin: 0; font-size: clamp(30px, 5vw, 46px); line-height: 1.08; }
+    .meta { display: flex; flex-wrap: wrap; gap: 10px 24px; margin-top: 18px; color: #dbeafe; font-size: 14px; }
+    h2 { margin: 42px 0 16px; font-size: 23px; }
+    .cards { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; }
+    .card, .panel {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      box-shadow: 0 5px 18px rgba(15, 23, 42, .05);
+    }
+    .card { padding: 20px; min-height: 118px; }
+    .card .label { color: var(--muted); font-size: 13px; font-weight: 650; text-transform: uppercase; letter-spacing: .05em; }
+    .card .value { display: block; margin-top: 10px; font-size: 28px; font-weight: 800; line-height: 1.1; }
+    .card .note { display: block; margin-top: 8px; color: var(--muted); font-size: 12px; }
+    .grid-2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; }
+    .panel { padding: 22px; overflow: hidden; }
+    .panel h3 { margin: 0 0 14px; font-size: 17px; }
+    .chart { display: block; width: 100%; height: auto; }
+    .empty { padding: 44px 16px; text-align: center; color: var(--muted); background: #f8fafc; border-radius: 12px; }
+    .table-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 14px; background: white; }
+    table { width: 100%; border-collapse: collapse; min-width: 720px; }
+    th, td { padding: 13px 14px; border-bottom: 1px solid var(--line); text-align: left; vertical-align: middle; }
+    th { background: #f1f5f9; color: var(--slate); font-size: 12px; text-transform: uppercase; letter-spacing: .05em; }
+    td { font-size: 14px; }
+    tbody tr:last-child td { border-bottom: 0; }
+    .money { font-weight: 700; white-space: nowrap; }
+    .pill { display: inline-flex; padding: 4px 9px; border-radius: 999px; background: #dcfce7; color: #166534; font-size: 12px; font-weight: 700; }
+    .footer { margin-top: 44px; padding-top: 20px; border-top: 1px solid var(--line); color: var(--muted); font-size: 12px; }
+    @media (max-width: 880px) { .cards { grid-template-columns: repeat(2, minmax(0, 1fr)); } .grid-2 { grid-template-columns: 1fr; } }
+    @media (max-width: 540px) { .page { padding: 20px 14px 40px; } .hero { padding: 24px; } .cards { grid-template-columns: 1fr; } }
+    @media print {
+      body { background: white; }
+      .page { max-width: none; padding: 0; }
+      .hero, .card, .panel { box-shadow: none; }
+      .panel, .card, .table-wrap { break-inside: avoid; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header class="hero">
+      <p class="eyebrow">FDT Sales Manager</p>
+      <h1>{{ titulo }}</h1>
+      <div class="meta">
+        <span>Gerado em {{ gerado_em|datahora }}</span>
+        <span>Período: {{ periodo_inicio|data }} — {{ periodo_fim|data }}</span>
+      </div>
+    </header>
+
+    <section aria-labelledby="visao-geral">
+      <h2 id="visao-geral">Visão geral</h2>
+      <div class="cards">
+        <article class="card"><span class="label">Faturação</span><strong class="value">{{ faturacao.faturacao_total|moeda }}</strong><span class="note">Pedidos pagos no período</span></article>
+        <article class="card"><span class="label">Pedidos pagos</span><strong class="value">{{ faturacao.total_pedidos_pagos }}</strong><span class="note">Ticket médio {{ faturacao.ticket_medio|moeda }}</span></article>
+        <article class="card"><span class="label">Quantidade vendida</span><strong class="value">{{ estatisticas.quantidade_vendida }}</strong><span class="note">Unidades em pedidos pagos</span></article>
+        <article class="card"><span class="label">Clientes ativos</span><strong class="value">{{ dashboard.total_clientes }}</strong><span class="note">{{ dashboard.total_clientes_inativos }} inativos</span></article>
+        <article class="card"><span class="label">Produtos ativos</span><strong class="value">{{ dashboard.total_produtos_ativos }}</strong></article>
+        <article class="card"><span class="label">Leads abertos</span><strong class="value">{{ dashboard.leads_abertos }}</strong><span class="note">{{ dashboard.taxa_conversao }}% de conversão</span></article>
+        <article class="card"><span class="label">Primeiro pagamento</span><strong class="value" style="font-size:21px">{{ faturacao.primeiro_pagamento|data }}</strong></article>
+        <article class="card"><span class="label">Último pagamento</span><strong class="value" style="font-size:21px">{{ faturacao.ultimo_pagamento|data }}</strong></article>
+      </div>
+    </section>
+
+    <section aria-labelledby="graficos">
+      <h2 id="graficos">Desempenho comercial</h2>
+      <div class="grid-2">
+        <article class="panel">
+          {% if grafico_produtos %}<img class="chart" src="data:image/svg+xml;base64,{{ grafico_produtos }}" alt="Gráfico de faturação por produto">{% else %}<div class="empty">Ainda não existem vendas pagas no período.</div>{% endif %}
+        </article>
+        <article class="panel">
+          {% if grafico_mensal %}<img class="chart" src="data:image/svg+xml;base64,{{ grafico_mensal }}" alt="Gráfico de evolução mensal da faturação">{% else %}<div class="empty">Ainda não existe evolução mensal para apresentar.</div>{% endif %}
+        </article>
+      </div>
+    </section>
+
+    <section aria-labelledby="produtos">
+      <h2 id="produtos">Vendas por produto</h2>
+      {% if produtos %}
+      <div class="table-wrap"><table>
+        <thead><tr><th>Produto</th><th>Categoria</th><th>Quantidade</th><th>Preço médio</th><th>Faturação</th></tr></thead>
+        <tbody>{% for produto in produtos %}<tr><td><strong>{{ produto.produto_nome }}</strong></td><td>{{ produto.categoria or '—' }}</td><td>{{ produto.quantidade_vendida }}</td><td class="money">{{ produto.preco_medio|moeda }}</td><td class="money">{{ produto.faturacao_total|moeda }}</td></tr>{% endfor %}</tbody>
+      </table></div>
+      {% else %}<div class="empty">Nenhuma venda por produto no período selecionado.</div>{% endif %}
+    </section>
+
+    <section aria-labelledby="pedidos">
+      <h2 id="pedidos">Pedidos faturados recentes</h2>
+      {% if pedidos %}
+      <div class="table-wrap"><table>
+        <thead><tr><th>Referência</th><th>Cliente</th><th>Pagamento</th><th>Itens</th><th>Total</th><th>Estado</th></tr></thead>
+        <tbody>{% for pedido in pedidos %}<tr><td>{{ pedido.referencia_externa or ('#' ~ pedido.id) }}</td><td>{{ pedido.cliente_nome }}</td><td>{{ pedido.pago_em|datahora }}</td><td>{{ pedido.total_itens }}</td><td class="money">{{ pedido.total|moeda }}</td><td><span class="pill">Pago</span></td></tr>{% endfor %}</tbody>
+      </table></div>
+      {% else %}<div class="empty">Nenhum pedido faturado no período selecionado.</div>{% endif %}
+    </section>
+
+    <section aria-labelledby="importacoes">
+      <h2 id="importacoes">Histórico de importações CSV</h2>
+      {% if importacoes %}
+      <div class="table-wrap"><table>
+        <thead><tr><th>Arquivo</th><th>Data</th><th>Linhas</th><th>Pedidos</th><th>Itens</th><th>Faturação</th></tr></thead>
+        <tbody>{% for item in importacoes %}<tr><td>{{ item.nome_arquivo }}</td><td>{{ item.importado_em|datahora }}</td><td>{{ item.total_linhas }}</td><td>{{ item.pedidos_criados }}</td><td>{{ item.itens_criados }}</td><td class="money">{{ item.faturacao_importada|moeda }}</td></tr>{% endfor %}</tbody>
+      </table></div>
+      {% else %}<div class="empty">Nenhum arquivo CSV foi importado nesta base.</div>{% endif %}
+    </section>
+
+    <footer class="footer">Relatório gerado automaticamente pelo FDT Sales Manager. Os valores representam pedidos atualmente no estado PAGO.</footer>
+  </main>
+</body>
+</html>

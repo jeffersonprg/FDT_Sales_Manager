@@ -7,7 +7,7 @@
 - Banco de dados: SQLite
 - Leitura e análise de CSV: Pandas
 - Gráficos: Matplotlib
-- Relatórios: Jinja2 + HTML
+- Relatórios: Jinja2 + HTML com gráficos SVG incorporados
 - Imagens: Pillow
 - Testes: pytest
 
@@ -48,4 +48,39 @@ O projeto utiliza uma arquitetura modular:
 ## Testes automatizados
 
 Os testes ficam em `tests/` e utilizam um banco SQLite isolado por teste.
-O estado atual é de 129 testes aprovados.
+O estado atual é de 151 testes aprovados.
+
+## Arquitetura da interface
+
+- A janela principal mantém a navegação e carrega cada tela sob demanda.
+- Componentes comuns de cabeçalho, indicadores, tabelas e mensagens ficam em
+  `src/views/components.py`.
+- Formatação e montagem dos dados visuais ficam em `src/presentation.py`, sem
+  dependência de Tk, permitindo testes automatizados rápidos.
+- As telas consultam os serviços existentes e não duplicam regras comerciais.
+- Pandas e Jinja2 são carregados somente quando a importação ou a geração de
+  relatório é executada, reduzindo o acoplamento do arranque da aplicação.
+
+## Contrato de importação CSV
+
+- Cada referência da coluna `pedido` representa um pedido.
+- Linhas com a mesma referência são agrupadas no mesmo pedido.
+- Clientes são reutilizados pela combinação normalizada de nome e morada.
+- Produtos são reutilizados pelo nome sem diferenciação de caixa.
+- O preço do item vem do CSV; o preço inicial do catálogo vem da primeira venda.
+- Novos produtos são vitalícios por padrão, com opção de validade temporária.
+- Vendas importadas entram como pagas na data da coluna `data`.
+- A importação inteira usa uma transação e rollback em qualquer erro.
+- O SHA-256 do arquivo é registrado para impedir reprocessamento idêntico.
+- Referências externas já existentes são ignoradas e incluídas no resumo.
+
+## Contrato do relatório HTML
+
+- Os dados são consultados diretamente nos serviços do MiniCRM.
+- Filtros opcionais de data afetam faturação, série mensal e pedidos listados.
+- Indicadores gerais, vendas por produto e histórico de importações são
+  apresentados no mesmo documento.
+- Os gráficos são SVG incorporados como `data:` URLs, sem dependência de rede
+  ou de arquivos de imagem externos.
+- A saída é gravada de forma atômica para evitar relatórios incompletos.
+- Valores e textos inseridos no template recebem formatação e escape de HTML.

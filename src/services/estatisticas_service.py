@@ -95,3 +95,42 @@ class EstatisticasService:
             ]
         finally:
             connection.close()
+
+    @staticmethod
+    def faturacao_por_mes(
+        data_inicio: date | datetime | None = None,
+        data_fim: date | datetime | None = None,
+    ) -> list[dict]:
+        inicio, fim = FaturacaoService._normalizar_periodo(
+            data_inicio,
+            data_fim,
+        )
+        connection = get_connection()
+
+        try:
+            rows = connection.execute("""
+                SELECT
+                    STRFTIME('%Y-%m', pago_em) AS mes,
+                    COUNT(*) AS total_pedidos,
+                    SUM(total) AS faturacao_total
+                FROM pedidos
+                WHERE estado = 'PAGO'
+                  AND (? IS NULL OR DATE(pago_em) >= ?)
+                  AND (? IS NULL OR DATE(pago_em) <= ?)
+                GROUP BY STRFTIME('%Y-%m', pago_em)
+                ORDER BY mes
+            """, (inicio, inicio, fim, fim)).fetchall()
+
+            return [
+                {
+                    "mes": row["mes"],
+                    "total_pedidos": row["total_pedidos"],
+                    "faturacao_total": round(
+                        float(row["faturacao_total"]),
+                        2,
+                    ),
+                }
+                for row in rows
+            ]
+        finally:
+            connection.close()

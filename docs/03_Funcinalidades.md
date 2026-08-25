@@ -56,19 +56,31 @@
 
 - [x] Leitura inicial do arquivo
 - [x] Validação inicial de colunas e valores
-- [ ] Integrar importação com o MiniCRM
-- [ ] Criar registros a partir do CSV
-- [ ] Prevenir importações duplicadas
-- [ ] Apresentar resumo da importação
+- [x] Integrar importação com o MiniCRM
+- [x] Criar clientes, produtos, pedidos e itens
+- [x] Agrupar várias linhas no mesmo pedido
+- [x] Prevenir duplicações por hash e referência externa
+- [x] Executar importação transacional com rollback
+- [x] Apresentar resumo estruturado da importação
 
 ## Relatórios
 
-- [ ] Gerar relatório HTML com dados do MiniCRM
-- [ ] Incluir tabelas, indicadores e gráficos
+- [x] Gerar relatório HTML com dados do MiniCRM
+- [x] Incluir tabelas, indicadores e gráficos
+- [x] Filtrar faturação e pedidos por período
+- [x] Incluir histórico de importações CSV
+- [x] Gerar arquivo autônomo e responsivo
 
 ## Interface gráfica
 
-- [ ] Criar janela principal e navegação
-- [ ] Criar telas de clientes, produtos, pedidos e leads
-- [ ] Criar dashboard
-- [ ] Criar interface de importação e relatórios
+- [x] Criar janela principal e navegação
+- [x] Criar telas pesquisáveis de clientes, produtos, leads e pedidos
+- [x] Criar dashboard conectado aos indicadores reais
+- [x] Criar interface de importação CSV
+- [x] Criar interface de geração de relatórios
+- [x] Adicionar formulários de criação e edição de clientes e produtos
+- [x] Adicionar ativação e inativação de clientes e produtos
+- [x] Adicionar formulários e ações de leads
+- [x] Adicionar conversão transacional de lead em cliente
+- [ ] Adicionar formulários e ações de pedidos
+- [ ] Adicionar pagamento e cancelamento

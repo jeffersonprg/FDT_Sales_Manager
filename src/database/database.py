@@ -261,6 +261,33 @@ def _migrar_schema(connection: sqlite3.Connection) -> None:
     )
 
 
+def _migrar_importacoes_csv(connection: sqlite3.Connection) -> None:
+    if _migracao_aplicada(connection, 2):
+        return
+
+    connection.execute("""
+        CREATE TABLE IF NOT EXISTS importacoes_csv (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            nome_arquivo TEXT NOT NULL,
+            hash_sha256 TEXT NOT NULL UNIQUE,
+            total_linhas INTEGER NOT NULL CHECK (total_linhas >= 0),
+            clientes_criados INTEGER NOT NULL DEFAULT 0,
+            produtos_criados INTEGER NOT NULL DEFAULT 0,
+            pedidos_criados INTEGER NOT NULL DEFAULT 0,
+            itens_criados INTEGER NOT NULL DEFAULT 0,
+            faturacao_importada REAL NOT NULL DEFAULT 0,
+            importado_em TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+        )
+    """)
+    connection.execute("""
+        CREATE INDEX IF NOT EXISTS idx_importacoes_csv_data
+        ON importacoes_csv(importado_em)
+    """)
+    connection.execute(
+        "INSERT INTO schema_migrations (versao) VALUES (2)"
+    )
+
+
 def create_tables() -> None:
     connection = get_connection()
 
@@ -421,6 +448,7 @@ def create_tables() -> None:
             ON pedidos(estado)
         """)
         _migrar_schema(connection)
+        _migrar_importacoes_csv(connection)
         connection.commit()
 
     except Exception:

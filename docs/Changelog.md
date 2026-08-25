@@ -67,3 +67,104 @@ ____
 ### Testes
 
 - 129 testes automatizados aprovados.
+
+## [Importação CSV integrada] — 24/08/2026
+
+### Adicionado
+
+- Serviço transacional de importação CSV.
+- Agrupamento de várias linhas por referência de pedido.
+- Criação e reutilização de clientes e produtos.
+- Criação de pedidos pagos, itens e períodos de acesso.
+- Histórico de importações com hash SHA-256.
+- Prevenção de duplicações por arquivo e referência externa.
+- Resumo estruturado com registros criados, reutilizados e ignorados.
+- Suporte a novos produtos vitalícios ou temporários.
+- Interface de linha de comando através de `python -m src.csv_reader`.
+
+### Validações
+
+- Colunas e valores obrigatórios.
+- Datas e números válidos.
+- Quantidades inteiras e positivas.
+- Faturação igual a quantidade multiplicada pelo preço unitário.
+- Consistência de cliente e data entre linhas do mesmo pedido.
+- Preço consistente quando um produto se repete no pedido.
+
+### Testes
+
+- 137 testes automatizados aprovados.
+
+## [Relatório HTML integrado] — 24/08/2026
+
+### Adicionado
+
+- Serviço de geração de relatório comercial a partir dos dados do MiniCRM.
+- Indicadores de clientes, produtos, leads, pedidos, faturação e ticket médio.
+- Tabelas de vendas por produto, pedidos pagos e histórico de importações CSV.
+- Gráficos SVG incorporados de faturação mensal e desempenho por produto.
+- Filtros opcionais de data e estados vazios para bases sem vendas.
+- Template responsivo e preparado para impressão.
+- Interface de linha de comando através de `python -m src.report_generator`.
+- Relatório da base atual e relatório demonstrativo gerados para validação.
+
+### Testes
+
+- 143 testes automatizados aprovados.
+
+## [Fundação da interface gráfica] — 25/08/2026
+
+### Adicionado
+
+- Janela principal em CustomTkinter com navegação lateral por módulos.
+- Dashboard conectado aos indicadores e últimos pedidos do MiniCRM.
+- Cartões de faturação, ticket médio, clientes, produtos, leads e pedidos.
+- Telas pesquisáveis para clientes, produtos, leads e pedidos.
+- Interface de seleção e importação de vendas CSV.
+- Interface de geração de relatórios HTML com filtro por período.
+- Componentes visuais reutilizáveis para cabeçalhos, tabelas, cartões e avisos.
+- Camada de apresentação independente de Tk para formatação e testes.
+
+### Alterado
+
+- `app.py` passa a inicializar o banco e abrir a aplicação gráfica.
+- Dependências específicas de CSV e relatório passam a ser carregadas sob
+  demanda na interface.
+
+### Testes
+
+- 148 testes automatizados aprovados.
+
+## [CRUD visual de clientes e produtos] — 25/08/2026
+
+### Adicionado
+
+- Modal reutilizável para formulários com campos de texto, seleção e descrição.
+- Criação e edição de clientes pela interface.
+- Ativação e inativação de clientes sem exclusão do histórico.
+- Criação e edição de produtos vitalícios e temporários.
+- Ativação e inativação de produtos sem exclusão do histórico.
+- Edição por botão ou duplo clique na linha selecionada.
+- Conversores testáveis para preços, inteiros e campos opcionais.
+- Mensagens de sucesso, seleção obrigatória e erros de validação nos formulários.
+
+### Testes
+
+- 150 testes automatizados aprovados.
+
+## [CRUD visual e conversão de leads] — 26/08/2026
+
+### Adicionado
+
+- Criação e edição de leads pela interface gráfica.
+- Seleção do estado do funil entre novo, contactado, qualificado e perdido.
+- Seleção de produto de interesse pelo nome, mantendo o ID no domínio.
+- Exibição do produto de interesse na tabela de leads.
+- Conversão visual e transacional de lead em cliente.
+- Formulário de conversão com morada, país, documento e observações.
+- Proteção contra edição ou reconversão de leads já convertidos.
+- Conversores testáveis entre opções visuais e IDs das entidades.
+
+### Testes
+
+- 151 testes automatizados aprovados.

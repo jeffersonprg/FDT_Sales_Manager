@@ -355,6 +355,6 @@ def test_migracao_preserva_cliente_de_schema_anterior(monkeypatch):
         assert row["nome"] == "Cliente legado"
         assert row["email"] == "legado@email.pt"
         assert row["estado"] == "ATIVO"
-        assert versao == 1
+        assert versao == 2
     finally:
         caminho.unlink(missing_ok=True)

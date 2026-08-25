@@ -80,3 +80,18 @@ Cada produto só pode aparecer uma vez por pedido.
 
 Registra cada versão de migração aplicada, garantindo idempotência e evolução
 segura da base existente.
+
+## importacoes_csv
+
+| Campo | Tipo | Regras principais |
+|---|---|---|
+| id | INTEGER | PK, autoincremento |
+| nome_arquivo | TEXT | nome do arquivo processado |
+| hash_sha256 | TEXT | único; impede reprocessamento idêntico |
+| total_linhas | INTEGER | quantidade de linhas lidas |
+| clientes_criados | INTEGER | clientes criados na transação |
+| produtos_criados | INTEGER | produtos criados na transação |
+| pedidos_criados | INTEGER | pedidos criados na transação |
+| itens_criados | INTEGER | itens criados na transação |
+| faturacao_importada | REAL | total efetivamente importado |
+| importado_em | TIMESTAMP | preenchimento automático |

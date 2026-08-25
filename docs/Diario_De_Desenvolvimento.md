@@ -838,3 +838,218 @@ chaves estrangeiras.
 
 Integrar a importação CSV aos serviços do MiniCRM, com prevenção de duplicações,
 transações e resumo da importação.
+
+# 24/08/2026 - Integração CSV
+
+## Objetivo
+
+Integrar o arquivo CSV ao núcleo estabilizado do MiniCRM.
+
+## Atividades realizadas
+
+- Transformado o leitor experimental em módulo reutilizável e comando CLI.
+- Criado serviço transacional de importação.
+- Implementada validação de esquema, valores, datas, quantidades e faturação.
+- Implementado agrupamento de múltiplas linhas pela referência do pedido.
+- Implementada agregação do mesmo produto repetido no pedido.
+- Implementada criação e reutilização de clientes por nome e morada.
+- Implementada criação e reutilização de produtos por nome.
+- Pedidos importados passam a ser pagos na data informada no CSV.
+- Períodos de acesso são calculados conforme a validade do produto.
+- Criado histórico de importações com hash SHA-256.
+- Referências já existentes são ignoradas e reportadas no resumo.
+- Qualquer erro provoca rollback de toda a importação.
+
+## Validação
+
+O arquivo de exemplo produziu, em banco isolado:
+
+- 4 clientes criados;
+- 2 produtos criados;
+- 5 pedidos pagos;
+- 5 itens;
+- faturação importada de 2.696,00 euros.
+
+Resultado da suíte completa:
+
+```text
+137 passed
+```
+
+## Próxima atividade
+
+Criar o relatório HTML utilizando dados reais do MiniCRM e os resumos de
+faturação, estatísticas e importações.
+
+# 24/08/2026 - Relatório HTML integrado
+
+## Objetivo
+
+Consolidar os dados do MiniCRM e das importações CSV em um relatório comercial
+autônomo, legível no navegador e adequado para impressão.
+
+## Atividades realizadas
+
+- Criado serviço de geração de relatório com filtros opcionais por período.
+- Integrados dashboard, faturação, estatísticas por produto, pedidos pagos e
+  histórico de importações.
+- Criada a série de faturação mensal.
+- Criado template HTML responsivo com indicadores, tabelas e estados vazios.
+- Criados gráficos SVG incorporados no próprio arquivo, sem dependências
+  externas para visualização.
+- Adicionados escape de conteúdo, formatação monetária e gravação atômica.
+- Criado comando `python -m src.report_generator`.
+- Gerados um relatório da base atual e um relatório demonstrativo usando banco
+  temporário, sem alterar os dados reais.
+- Adicionados testes de conteúdo, período, base vazia, segurança de HTML e
+  argumentos inválidos.
+
+## Validação
+
+O relatório demonstrativo apresentou:
+
+- 4 clientes;
+- 2 produtos;
+- 5 pedidos pagos;
+- faturação total de 2.696,00 euros;
+- gráficos, tabelas e histórico de importação no mesmo HTML.
+
+Resultado da suíte completa:
+
+```text
+143 passed
+```
+
+O navegador interno não abriu o arquivo local devido à política de segurança
+para URLs `file://`. A validação automatizada confirmou a estrutura, o conteúdo,
+os gráficos incorporados e o comportamento responsivo definido no template.
+
+## Próxima atividade
+
+Construir a interface gráfica e conectar nela os módulos concluídos do
+MiniCRM, da importação CSV e dos relatórios HTML.
+
+# 25/08/2026 - Fundação da interface gráfica
+
+## Objetivo
+
+Criar a estrutura visual da aplicação e tornar acessíveis, numa única janela,
+os dados e ferramentas já concluídos no backend.
+
+## Atividades realizadas
+
+- Implementada a janela principal em CustomTkinter.
+- Criada navegação lateral para Dashboard, Clientes, Produtos, Leads, Pedidos,
+  Importar CSV e Relatórios.
+- Criado dashboard com seis indicadores, taxa de conversão, produto em destaque
+  e últimos pedidos.
+- Criadas tabelas pesquisáveis para os quatro módulos comerciais.
+- Criada interface de seleção e importação de CSV com resumo e erros visíveis.
+- Criada interface de geração de relatório com caminho de saída e período.
+- Criados componentes compartilhados de cabeçalho, cartão, tabela e estado.
+- Separada a transformação dos dados numa camada de apresentação testável.
+- Adicionado carregamento sob demanda de Pandas e Jinja2.
+
+## Validação
+
+- A janela foi construída pelo Tk com todos os sete módulos.
+- Todas as telas foram alternadas e renderizadas com escala do Windows ativa.
+- O runtime de inspeção visual não expôs a janela Tk para captura automatizada;
+  a validação do ciclo real da janela confirmou geometria, visibilidade e
+  construção dos componentes.
+- O banco real não recebeu dados durante a validação da interface.
+
+Resultado da suíte completa:
+
+```text
+148 passed
+```
+
+## Próxima atividade
+
+Adicionar formulários de criação e edição para clientes, produtos, leads e
+pedidos, seguidos das ações de conversão, pagamento e cancelamento.
+
+# 25/08/2026 - CRUD visual de clientes e produtos
+
+## Objetivo
+
+Transformar as telas de consulta de clientes e produtos em módulos operacionais
+sem duplicar as regras comerciais do backend.
+
+## Atividades realizadas
+
+- Criado modal reutilizável e rolável para formulários.
+- Adicionados campos completos de cliente, incluindo contactos, morada,
+  documento e observações.
+- Implementadas criação e edição de clientes.
+- Implementadas inativação e reativação de clientes com histórico preservado.
+- Adicionados campos de produto, preço, categoria, validade, duração e descrição.
+- Implementadas criação e edição de produtos vitalícios e temporários.
+- Implementadas inativação e reativação de produtos com histórico preservado.
+- Adicionada edição por duplo clique e controlo de seleção na tabela.
+- Criados conversores de formulário para moeda, inteiros e textos opcionais.
+- Erros de validação do domínio são apresentados dentro do próprio modal.
+
+## Validação
+
+O fluxo visual foi exercitado num banco temporário:
+
+- cliente criado, editado e inativado;
+- produto temporário criado, editado e inativado;
+- preço em formato português convertido corretamente;
+- modais de cliente e produto construídos e visíveis;
+- nenhuma alteração realizada no banco real.
+
+Resultado da suíte completa:
+
+```text
+150 passed
+```
+
+## Próxima atividade
+
+Adicionar CRUD visual de leads, incluindo conversão em cliente, e depois criar
+o fluxo visual de pedidos, pagamento e cancelamento.
+
+# 26/08/2026 - CRUD visual e conversão de leads
+
+## Objetivo
+
+Tornar o módulo de leads operacional na interface e ligar a conversão ao fluxo
+transacional já estabilizado no backend.
+
+## Atividades realizadas
+
+- Adicionado formulário de criação de leads.
+- Adicionado formulário de edição com estados do funil.
+- Produtos ativos passam a ser selecionados pelo nome no formulário.
+- Adicionada coluna de produto de interesse na tabela.
+- Adicionada edição por botão e duplo clique.
+- Criado formulário específico para conversão em cliente.
+- Integrados morada, país, documento e observações na conversão.
+- Leads convertidos são protegidos contra edição e nova conversão.
+- Erros de email ou documento duplicado continuam a provocar rollback completo.
+- Adicionados conversores testáveis entre opções visuais e IDs internos.
+
+## Validação
+
+O fluxo foi exercitado num banco temporário:
+
+- produto de interesse criado;
+- lead criado e associado ao produto;
+- estado alterado de NOVO para QUALIFICADO;
+- modal de conversão construído e visível;
+- lead convertido num cliente com contactos e morada preservados;
+- nenhuma alteração realizada no banco real.
+
+Resultado da suíte completa:
+
+```text
+151 passed
+```
+
+## Próxima atividade
+
+Criar o fluxo visual de pedidos com seleção de cliente e produtos, composição
+dos itens, pagamento e cancelamento.

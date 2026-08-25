@@ -139,3 +139,17 @@ def test_dashboard_inclui_produto_mais_vendido_e_ultimos_pedidos(
     assert resumo["produto_mais_vendido"]["produto_id"] == produto_b_id
     assert resumo["produto_mais_vendido"]["quantidade_vendida"] == 3
     assert len(resumo["ultimos_pedidos"]) == 1
+
+
+def test_faturacao_por_mes(banco_temporario):
+    preparar_vendas()
+
+    meses = EstatisticasService.faturacao_por_mes()
+
+    assert meses == [
+        {
+            "mes": "2026-08",
+            "total_pedidos": 2,
+            "faturacao_total": 330.0,
+        }
+    ]

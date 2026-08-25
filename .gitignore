@@ -41,3 +41,6 @@ Thumbs.db
 .pytest_cache/
 .pytest_tmp/
 tests/_temp_databases/
+tests/_temp_csv/
+tests/_temp_reports/
+src/data/reports/
