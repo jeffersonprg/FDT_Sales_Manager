@@ -1,3 +1,5 @@
+"""Formatação e conversão de dados usados pela interface gráfica."""
+
 from __future__ import annotations
 
 from datetime import date, datetime
@@ -48,6 +50,18 @@ def interpretar_data_filtro(valor: str) -> date | None:
         raise ValueError("Use datas no formato AAAA-MM-DD.") from error
 
 
+def interpretar_datetime_evento(valor: str) -> datetime | None:
+    """Converte a data informada na interface ou deixa o serviço usar o momento atual."""
+
+    texto = valor.strip()
+    if not texto:
+        return None
+    try:
+        return datetime.strptime(texto, "%Y-%m-%d %H:%M")
+    except ValueError as error:
+        raise ValueError("Use data e hora no formato AAAA-MM-DD HH:MM.") from error
+
+
 def interpretar_decimal(valor: str, campo: str = "valor") -> float:
     texto = valor.strip().replace("€", "").replace(" ", "")
     if not texto:
@@ -91,6 +105,8 @@ def interpretar_id_opcao(valor: str) -> int | None:
 
 
 def montar_dashboard(resumo: dict) -> dict:
+    """Prepara indicadores e linhas sem criar dependência com o Tk."""
+
     produto = resumo.get("produto_mais_vendido")
     cards = (
         ("Clientes ativos", str(resumo.get("total_clientes", 0)), "base atual"),

@@ -1,3 +1,5 @@
+"""Janela principal e navegação entre os módulos da aplicação."""
+
 import customtkinter as ctk
 
 from src.presentation import NAVIGATION_ITEMS
@@ -8,6 +10,8 @@ from src.views.tools_views import CSVImportView, ReportsView
 
 
 class MainWindow(ctk.CTk):
+    """Mantém o menu lateral e apresenta uma tela de cada vez."""
+
     VIEW_FACTORIES = {
         "dashboard": DashboardView,
         "clientes": ClientesView,
@@ -63,6 +67,7 @@ class MainWindow(ctk.CTk):
         ).grid(row=len(NAVIGATION_ITEMS) + 3, column=0, sticky="sew", padx=24, pady=20)
 
     def mostrar_view(self, key):
+        # As telas são criadas apenas na primeira abertura e reutilizadas depois.
         for view in self.views.values():
             view.grid_remove()
         if key not in self.views:

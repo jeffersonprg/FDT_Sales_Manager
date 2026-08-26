@@ -9,6 +9,7 @@ from src.presentation import (
     formatar_opcao_entidade,
     formatar_texto,
     interpretar_data_filtro,
+    interpretar_datetime_evento,
     interpretar_decimal,
     interpretar_id_opcao,
     interpretar_inteiro_opcional,
@@ -54,6 +55,13 @@ def test_opcoes_de_entidades_do_formulario():
     assert interpretar_id_opcao("— Sem produto —") is None
     with pytest.raises(ValueError, match="opção selecionada"):
         interpretar_id_opcao("produto sem identificador")
+
+
+def test_interpretar_data_e_hora_de_evento():
+    assert interpretar_datetime_evento("2026-08-26 14:30") == datetime(2026, 8, 26, 14, 30)
+    assert interpretar_datetime_evento("  ") is None
+    with pytest.raises(ValueError, match="AAAA-MM-DD HH:MM"):
+        interpretar_datetime_evento("26/08/2026 14:30")
 
 
 def test_navegacao_contem_todos_os_modulos():

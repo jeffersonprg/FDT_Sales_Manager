@@ -1,3 +1,5 @@
+"""Dashboard ligado aos indicadores reais do MiniCRM."""
+
 import customtkinter as ctk
 
 from src.presentation import montar_dashboard
@@ -7,6 +9,8 @@ from src.views.theme import COLORS, FONT_FAMILY
 
 
 class DashboardView(ctk.CTkFrame):
+    """Organiza indicadores, destaques e os pedidos mais recentes."""
+
     def __init__(self, master):
         super().__init__(master, fg_color=COLORS["background"])
         self.grid_columnconfigure(0, weight=1)
@@ -49,6 +53,7 @@ class DashboardView(ctk.CTkFrame):
         return label
 
     def carregar(self):
+        # A apresentação transforma os dados; esta tela apenas os distribui.
         dados = montar_dashboard(DashboardService.obter_resumo())
         for widget in self.cards_frame.winfo_children():
             widget.destroy()

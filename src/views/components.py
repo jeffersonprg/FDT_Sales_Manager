@@ -1,3 +1,5 @@
+"""Componentes visuais partilhados pelas diferentes telas."""
+
 from __future__ import annotations
 
 from tkinter import ttk
@@ -8,6 +10,8 @@ from src.views.theme import COLORS, FONT_FAMILY
 
 
 class FormDialog(ctk.CTkToplevel):
+    """Cria formulários simples a partir de uma lista de campos."""
+
     def __init__(self, master, title, fields, initial, on_submit):
         super().__init__(master)
         self.title(title)
@@ -91,6 +95,7 @@ class FormDialog(ctk.CTkToplevel):
         return values
 
     def _submit(self):
+        # O modal permanece aberto quando o domínio rejeita algum valor.
         try:
             self.on_submit(self._values())
         except Exception as error:
@@ -100,6 +105,8 @@ class FormDialog(ctk.CTkToplevel):
 
 
 class PageHeader(ctk.CTkFrame):
+    """Apresenta o título da tela e a ação opcional de atualização."""
+
     def __init__(self, master, title: str, subtitle: str, action=None):
         super().__init__(master, fg_color="transparent")
         self.grid_columnconfigure(0, weight=1)
@@ -121,6 +128,8 @@ class PageHeader(ctk.CTkFrame):
 
 
 class MetricCard(ctk.CTkFrame):
+    """Resume um indicador do dashboard num cartão compacto."""
+
     def __init__(self, master, title: str, value: str, hint: str):
         super().__init__(
             master, fg_color=COLORS["surface"], corner_radius=12,
@@ -141,6 +150,8 @@ class MetricCard(ctk.CTkFrame):
 
 
 class DataTable(ctk.CTkFrame):
+    """Padroniza tabelas e mantém a leitura alternada das linhas."""
+
     def __init__(self, master, columns: tuple[tuple[str, str, int], ...]):
         super().__init__(master, fg_color=COLORS["surface"], corner_radius=12)
         self.columns = columns
@@ -185,6 +196,8 @@ class DataTable(ctk.CTkFrame):
 
 
 class StatusBanner(ctk.CTkLabel):
+    """Mostra informação, sucesso ou erro sem interromper o utilizador."""
+
     def __init__(self, master):
         super().__init__(
             master, text="", anchor="w", corner_radius=8, height=36,

@@ -168,3 +168,23 @@ ____
 ### Testes
 
 - 151 testes automatizados aprovados.
+
+## [Fluxo visual de pedidos] — 26/08/2026
+
+### Adicionado
+
+- Criação visual de pedidos para clientes ativos.
+- Composição de pedidos com vários produtos, quantidades e preços negociados.
+- Cálculo e apresentação do total antes da gravação.
+- Remoção de itens durante a montagem do pedido.
+- Consulta detalhada dos produtos e períodos de acesso.
+- Registo de pagamento com data opcional.
+- Cancelamento de pedidos pendentes ou pagos.
+- Proteção visual das transições de estado não permitidas.
+- Pesquisa de pedidos por ID, referência ou nome do cliente.
+- Comentários e docstrings nos módulos visuais para explicar responsabilidades
+  e decisões menos evidentes.
+
+### Testes
+
+- 152 testes automatizados aprovados.

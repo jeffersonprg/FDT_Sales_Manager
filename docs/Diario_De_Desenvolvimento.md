@@ -1053,3 +1053,86 @@ Resultado da suíte completa:
 
 Criar o fluxo visual de pedidos com seleção de cliente e produtos, composição
 dos itens, pagamento e cancelamento.
+
+# 26/08/2026 - Fluxo visual de pedidos
+
+## Objetivo
+
+Concluir a ligação entre a interface e o ciclo comercial dos pedidos, desde a
+montagem dos itens até ao pagamento ou cancelamento.
+
+## Atividades realizadas
+
+- Criada janela específica para montagem de pedidos.
+- Adicionada seleção de cliente ativo pelo nome.
+- Adicionada seleção de produtos ativos, quantidades e preços negociados.
+- Implementados cálculo do subtotal, total e remoção de itens antes de guardar.
+- A gravação do pedido e dos itens continua a usar uma única transação.
+- Criada janela de detalhes com produtos, valores e períodos de acesso.
+- Implementada ação para registar pagamento com data e hora opcionais.
+- Implementada ação para cancelar pedidos pendentes ou pagos.
+- Bloqueadas na interface as transições que o domínio não permite.
+- A pesquisa de pedidos passa a considerar ID, referência e nome do cliente.
+- Adicionados comentários e docstrings nos módulos da interface para explicar
+  responsabilidades, decisões e operações transacionais.
+
+## Validação
+
+O fluxo foi exercitado num banco temporário:
+
+- cliente ativo e dois produtos criados;
+- pedido montado com dois itens e total de 599,90 euros;
+- detalhe do pedido aberto pela interface;
+- pagamento registado e acessos iniciados;
+- produto vitalício sem data final;
+- produto temporário com período calculado;
+- pedido pago posteriormente cancelado;
+- nenhuma alteração realizada no banco real.
+
+Resultado da suíte completa:
+
+```text
+152 passed
+```
+
+## Próxima atividade
+
+Rever a experiência completa da interface, adicionar confirmações nas ações
+críticas e preparar o projeto para distribuição.
+
+# 27/08/2026 - Ambiente validado e testes completos
+
+## Objetivo
+
+Preparar o ambiente de execução definido para o projeto e confirmar que os
+módulos do MiniCRM, da importação CSV, dos relatórios e da interface são
+compatíveis entre si.
+
+## Atividades realizadas
+
+- Criado e validado o ambiente virtual `.venv` com Python 3.13.14.
+- Instaladas as dependências declaradas em `requirements.txt`.
+- Confirmada a disponibilidade de Pandas, Jinja2, CustomTkinter, Matplotlib e
+  pytest nas versões definidas para o projeto.
+- Executada a verificação de dependências sem conflitos identificados.
+- Executada a suíte completa de testes, incluindo importação CSV e relatórios
+  HTML.
+- Confirmado o arranque da aplicação gráfica a partir de `app.py`.
+
+## Validação
+
+Resultado da suíte completa no ambiente Python 3.13:
+
+```text
+152 passed
+```
+
+A aplicação iniciou corretamente durante o teste de arranque. A validação
+manual dos fluxos por um utilizador continua recomendada antes da entrega:
+importação de um CSV real, criação manual de dados, registo de pedidos e
+consulta dos indicadores e relatórios.
+
+## Próxima atividade
+
+Executar a validação final de utilização pela interface e preparar a entrega
+do projeto.

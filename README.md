@@ -28,8 +28,8 @@ O backend do MiniCRM está concluído e coberto por testes automatizados:
 - interface gráfica com navegação, dashboard e consultas comerciais;
 - migrações incrementais do banco de dados.
 
-Próxima etapa: completar o fluxo visual de pedidos, incluindo itens, pagamento
-e cancelamento.
+Próxima etapa: rever a experiência completa da interface, adicionar confirmações
+nas ações críticas e preparar a aplicação para distribuição.
 
 ## Preparação do ambiente
 
@@ -50,7 +50,7 @@ instalação de Python removida; recrie-o como `.venv` com os comandos acima.
 .\.venv\Scripts\python.exe -m pytest -q
 ```
 
-Estado atual: **151 testes aprovados**.
+Estado atual: **152 testes aprovados**.
 
 ## Interface gráfica
 
@@ -63,7 +63,8 @@ leads, pedidos, importação CSV e relatórios. As listas permitem pesquisa e s�
 atualizadas diretamente a partir dos serviços do MiniCRM. Clientes e produtos
 já possuem formulários de criação e edição, além de ativação e inativação com
 preservação do histórico. Leads também podem ser criados, editados, movidos no
-funil e convertidos transacionalmente em clientes.
+funil e convertidos transacionalmente em clientes. Pedidos podem ser compostos
+com vários produtos, consultados em detalhe, pagos e cancelados.
 
 ## Importação CSV
 

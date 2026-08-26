@@ -1,9 +1,12 @@
+"""Telas de consulta e operações dos módulos comerciais."""
+
 from __future__ import annotations
 
 import customtkinter as ctk
 
 from src.models.cliente import Cliente
 from src.models.lead import Lead
+from src.models.pedido import Pedido
 from src.models.produto import Produto
 from src.presentation import (
     formatar_data,
@@ -12,6 +15,7 @@ from src.presentation import (
     interpretar_decimal,
     interpretar_id_opcao,
     interpretar_inteiro_opcional,
+    interpretar_datetime_evento,
     formatar_opcao_entidade,
     texto_opcional,
 )
@@ -20,10 +24,13 @@ from src.services.lead_service import LeadService
 from src.services.pedido_service import PedidoService
 from src.services.produto_service import ProdutoService
 from src.views.components import DataTable, FormDialog, PageHeader, StatusBanner
+from src.views.order_dialog import OrderDetailsDialog, OrderDialog
 from src.views.theme import COLORS, FONT_FAMILY
 
 
 class ListView(ctk.CTkFrame):
+    """Reúne pesquisa, ações, tabela e mensagens num layout comum."""
+
     def __init__(self, master, title, subtitle, columns):
         super().__init__(master, fg_color=COLORS["background"])
         self.grid_columnconfigure(0, weight=1)
@@ -77,6 +84,8 @@ class ListView(ctk.CTkFrame):
 
 
 class ClientesView(ListView):
+    """Permite consultar e manter clientes sem apagar o histórico."""
+
     def __init__(self, master):
         super().__init__(master, "Clientes", "Clientes ativos e respetivos contactos.", (
             ("id", "ID", 60), ("nome", "Nome", 210), ("empresa", "Empresa", 170),
@@ -155,6 +164,8 @@ class ClientesView(ListView):
 
 
 class ProdutosView(ListView):
+    """Mantém o catálogo e as regras de validade de cada produto."""
+
     def __init__(self, master):
         super().__init__(master, "Produtos", "Catálogo, preços e condições de acesso.", (
             ("id", "ID", 60), ("nome", "Produto", 230), ("categoria", "Categoria", 150),
@@ -236,6 +247,8 @@ class ProdutosView(ListView):
 
 
 class LeadsView(ListView):
+    """Acompanha o funil e converte oportunidades em clientes."""
+
     def __init__(self, master):
         super().__init__(master, "Leads", "Oportunidades e evolução do funil comercial.", (
             ("id", "ID", 60), ("nome", "Nome", 210), ("empresa", "Empresa", 160),
@@ -350,6 +363,7 @@ class LeadsView(ListView):
         )
 
     def _converter(self, lead, values):
+        # A conversão fica no serviço para garantir cliente e lead na mesma transação.
         cliente_id = LeadService.converter_em_cliente(
             lead_id=lead.id, morada=texto_opcional(values["morada"]),
             pais=values["pais"].strip() or "Portugal",
@@ -364,20 +378,93 @@ class LeadsView(ListView):
 
 
 class PedidosView(ListView):
+    """Cria pedidos e aplica as transições comerciais permitidas."""
+
     def __init__(self, master):
         super().__init__(master, "Pedidos", "Histórico de pedidos e respetivos estados.", (
             ("id", "ID", 70), ("referencia", "Referência", 160),
-            ("cliente", "Cliente ID", 100), ("data", "Data", 120),
+            ("cliente", "Cliente", 200), ("data", "Data", 120),
             ("estado", "Estado", 110), ("itens", "Itens", 80), ("total", "Total", 120),
         ))
+        self.adicionar_acao("Novo pedido", self.novo, destaque=True)
+        self.adicionar_acao("Detalhes", self.detalhes)
+        self.adicionar_acao("Marcar pago", self.pagar)
+        self.adicionar_acao("Cancelar", self.cancelar)
+        self.table.tree.bind("<Double-1>", lambda _event: self.detalhes())
         self.carregar()
 
     def obter_linhas(self, termo):
         pedidos = PedidoService.listar_pedidos()
+        clientes = {
+            cliente.id: cliente.nome
+            for cliente in ClienteService.listar_clientes(incluir_inativos=True)
+        }
         termo = termo.casefold()
         if termo:
-            pedidos = [p for p in pedidos if termo in (p.referencia_externa or "").casefold()
-                       or termo in str(p.id)]
-        return [(p.id, formatar_texto(p.referencia_externa), p.cliente_id,
+            pedidos = [p for p in pedidos if (
+                termo in (p.referencia_externa or "").casefold()
+                or termo in str(p.id)
+                or termo in clientes.get(p.cliente_id, "").casefold()
+            )]
+        return [(p.id, formatar_texto(p.referencia_externa),
+                 clientes.get(p.cliente_id, f"Cliente #{p.cliente_id}"),
                  formatar_data(p.data_pedido), p.estado, len(p.itens),
                  formatar_moeda(p.total)) for p in pedidos]
+
+    def novo(self):
+        clientes = ClienteService.listar_clientes()
+        produtos = ProdutoService.listar_produtos(apenas_ativos=True)
+        if not clientes or not produtos:
+            self.status.mostrar(
+                "É necessário ter pelo menos um cliente e um produto ativos.", "error",
+            )
+            return
+        self.dialog = OrderDialog(self, clientes, produtos, self._criar)
+
+    def _criar(self, pedido: Pedido):
+        pedido_id = PedidoService.criar_pedido(pedido)
+        self.carregar()
+        self.status.mostrar(f"Pedido #{pedido_id} criado como PENDENTE.", "success")
+
+    def detalhes(self):
+        pedido_id = self.id_selecionado()
+        if pedido_id is None:
+            return
+        pedido = PedidoService.buscar_pedido(pedido_id)
+        cliente = ClienteService.buscar_cliente(pedido.cliente_id, incluir_inativos=True)
+        produtos = {p.id: p.nome for p in ProdutoService.listar_produtos()}
+        self.dialog = OrderDetailsDialog(self, pedido, cliente.nome, produtos)
+
+    def pagar(self):
+        self._abrir_transicao("PAGO", "Registar pagamento")
+
+    def cancelar(self):
+        self._abrir_transicao("CANCELADO", "Cancelar pedido")
+
+    def _abrir_transicao(self, novo_estado, titulo):
+        pedido_id = self.id_selecionado()
+        if pedido_id is None:
+            return
+        pedido = PedidoService.buscar_pedido(pedido_id)
+        if novo_estado not in PedidoService.TRANSICOES_VALIDAS[pedido.estado]:
+            self.status.mostrar(
+                f"Não é possível alterar um pedido {pedido.estado} para {novo_estado}.", "error",
+            )
+            return
+        fields = (("data_evento", "Data e hora (AAAA-MM-DD HH:MM). Deixe vazio para agora"),)
+        self.dialog = FormDialog(
+            self, titulo, fields, {},
+            lambda values: self._aplicar_transicao(pedido_id, novo_estado, values),
+        )
+
+    def _aplicar_transicao(self, pedido_id, novo_estado, values):
+        # A data vazia delega ao serviço o uso do momento atual.
+        data_evento = interpretar_datetime_evento(values["data_evento"])
+        atualizado = PedidoService.atualizar_estado_pedido(
+            pedido_id, novo_estado, data_evento=data_evento,
+        )
+        if not atualizado:
+            raise ValueError("Pedido não encontrado.")
+        self.carregar()
+        acao = "pago" if novo_estado == "PAGO" else "cancelado"
+        self.status.mostrar(f"Pedido #{pedido_id} marcado como {acao}.", "success")

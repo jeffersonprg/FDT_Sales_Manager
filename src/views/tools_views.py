@@ -1,3 +1,5 @@
+"""Telas das ferramentas de importação e relatório."""
+
 from __future__ import annotations
 
 from datetime import date
@@ -12,6 +14,8 @@ from src.views.theme import COLORS, FONT_FAMILY
 
 
 class ToolView(ctk.CTkFrame):
+    """Base visual para operações pontuais com mensagem de resultado."""
+
     def __init__(self, master, title, subtitle):
         super().__init__(master, fg_color=COLORS["background"])
         self.grid_columnconfigure(0, weight=1)
@@ -61,6 +65,7 @@ class CSVImportView(ToolView):
 
     def importar(self):
         try:
+            # Pandas só é carregado quando a importação é realmente solicitada.
             from src.services.importacao_csv_service import ImportacaoCSVService
 
             resumo = ImportacaoCSVService().importar(self.path.get().strip())
@@ -120,6 +125,7 @@ class ReportsView(ToolView):
 
     def gerar(self):
         try:
+            # Jinja2 só é necessário no momento de gerar o ficheiro HTML.
             from src.services.relatorio_html_service import RelatorioHTMLService
 
             inicio = interpretar_data_filtro(self.inicio.get())

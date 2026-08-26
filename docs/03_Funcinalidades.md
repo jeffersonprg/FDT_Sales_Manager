@@ -82,5 +82,6 @@
 - [x] Adicionar ativação e inativação de clientes e produtos
 - [x] Adicionar formulários e ações de leads
 - [x] Adicionar conversão transacional de lead em cliente
-- [ ] Adicionar formulários e ações de pedidos
-- [ ] Adicionar pagamento e cancelamento
+- [x] Adicionar criação e detalhes de pedidos
+- [x] Adicionar composição de pedidos com vários itens
+- [x] Adicionar pagamento e cancelamento
