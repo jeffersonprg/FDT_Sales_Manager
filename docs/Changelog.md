@@ -188,3 +188,49 @@ ____
 ### Testes
 
 - 152 testes automatizados aprovados.
+
+## [Acabamento e preparação da distribuição] — 02/09/2026
+
+### Adicionado
+
+- Confirmação antes de inativar clientes e produtos.
+- Botões de confirmação específicos para pagamento e cancelamento.
+- Atalhos `Esc` para fechar e `Ctrl+Enter` para guardar modais.
+- Contagem dos registos apresentados nas telas de consulta.
+- Resolução centralizada de caminhos de recursos e dados graváveis.
+- Pasta própria em `%LOCALAPPDATA%` para a versão compilada.
+- Suporte à variável `FDT_DATA_DIR`.
+- Configuração `FDT_Sales_Manager.spec` para o PyInstaller.
+- Script `scripts/build_release.ps1` com validação do ambiente.
+- Testes dos caminhos de desenvolvimento, distribuição e configuração manual.
+
+### Alterado
+
+- Pedidos cancelados passam a apresentar o acesso como cancelado nos detalhes.
+- O template do relatório é tratado como recurso de leitura.
+- O banco e os relatórios deixam de depender da pasta do executável compilado.
+
+### Testes
+
+- 155 testes automatizados aprovados.
+
+## [Distribuição Windows gerada e validada] — 03/09/2026
+
+### Adicionado
+
+- Ambiente virtual recriado com Python 3.14.2.
+- PyInstaller 6.22.2 instalado no ambiente do projeto.
+- Distribuição `onedir` gerada em `dist\FDT Sales Manager`.
+- Teste de arranque do executável com pasta de dados isolada.
+
+### Alterado
+
+- Os comandos de preparação do ambiente passam a usar Python 3.14.
+- A documentação passa a refletir a distribuição efetivamente validada.
+
+### Validação
+
+- Janela principal aberta pelo executável compilado.
+- Banco isolado criado com integridade SQLite confirmada.
+- Nenhuma violação de chave estrangeira encontrada.
+- 156 testes automatizados aprovados.

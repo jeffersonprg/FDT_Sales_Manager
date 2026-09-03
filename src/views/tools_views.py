@@ -2,12 +2,13 @@
 
 from __future__ import annotations
 
+import webbrowser
 from datetime import date
-from pathlib import Path
 from tkinter import filedialog
 
 import customtkinter as ctk
 
+from src.config.paths import REPORTS_DIR
 from src.presentation import formatar_moeda, interpretar_data_filtro
 from src.views.components import PageHeader, StatusBanner
 from src.views.theme import COLORS, FONT_FAMILY
@@ -90,7 +91,7 @@ class ReportsView(ToolView):
         output.grid_columnconfigure(0, weight=1)
         self.path = ctk.CTkEntry(output, height=40)
         self.path.grid(row=0, column=0, sticky="ew")
-        default = Path("src/data/reports") / f"relatorio_{date.today():%Y%m%d}.html"
+        default = REPORTS_DIR / f"relatorio_{date.today():%Y%m%d}.html"
         self.path.insert(0, str(default))
         ctk.CTkButton(output, text="Procurar", width=100, height=40, command=self.selecionar).grid(
             row=0, column=1, padx=(10, 0)
@@ -101,7 +102,7 @@ class ReportsView(ToolView):
         self.inicio = self._date_field(dates, 0, "Data inicial (AAAA-MM-DD)")
         self.fim = self._date_field(dates, 1, "Data final (AAAA-MM-DD)")
         ctk.CTkButton(
-            self.panel, text="Gerar relatório", height=42, command=self.gerar,
+            self.panel, text="Gerar e abrir relatório", height=42, command=self.gerar,
             fg_color=COLORS["blue"], hover_color=COLORS["blue_hover"],
             font=(FONT_FAMILY, 13, "bold"),
         ).grid(row=3, column=0, sticky="w", padx=22, pady=22)
@@ -133,6 +134,7 @@ class ReportsView(ToolView):
             caminho = RelatorioHTMLService().gerar(
                 caminho_saida=self.path.get().strip(), data_inicio=inicio, data_fim=fim,
             )
+            webbrowser.open(caminho.as_uri())
             self.status.mostrar(f"Relatório gerado em {caminho}", "success")
         except Exception as error:
             self.status.mostrar(str(error), "error")

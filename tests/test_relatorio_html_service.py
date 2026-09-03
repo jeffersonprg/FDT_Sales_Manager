@@ -50,6 +50,11 @@ def test_gerar_relatorio_com_dados(
     assert "PED-005" in conteudo
     assert "vendas_exemplo.csv" in conteudo
     assert conteudo.count("data:image/svg+xml;base64,") == 2
+    assert conteudo.count("data:image/png;base64,") == 2
+    assert 'class="brand-logo"' in conteudo
+    assert 'rel="icon"' in conteudo
+    assert "TSS Invest" in conteudo
+    assert "TS Invest —" not in conteudo
     assert not caminho_relatorio.with_suffix(".tmp").exists()
 
 
@@ -64,6 +69,7 @@ def test_relatorio_vazio_apresenta_mensagens(
     assert "Nenhum pedido faturado" in conteudo
     assert "Nenhum arquivo CSV foi importado" in conteudo
     assert "data:image/svg+xml;base64," not in conteudo
+    assert conteudo.count("data:image/png;base64,") == 2
 
 
 def test_relatorio_filtra_periodo(

@@ -4,7 +4,7 @@ Aplicação desktop em Python para análise de vendas e gestão comercial da FDT
 
 ## Tecnologias
 
-- Python 3.13
+- Python 3.14
 - SQLite
 - pytest
 - Pandas
@@ -28,15 +28,15 @@ O backend do MiniCRM está concluído e coberto por testes automatizados:
 - interface gráfica com navegação, dashboard e consultas comerciais;
 - migrações incrementais do banco de dados.
 
-Próxima etapa: rever a experiência completa da interface, adicionar confirmações
-nas ações críticas e preparar a aplicação para distribuição.
+A distribuição Windows foi gerada e validada. A próxima etapa é a validação
+funcional final pelo utilizador com uma cópia dos dados reais.
 
 ## Preparação do ambiente
 
-No Windows, com Python 3.13 instalado:
+No Windows, com Python 3.14 instalado:
 
 ```powershell
-py -3.13 -m venv .venv
+py -3.14 -m venv .venv
 .\.venv\Scripts\python.exe -m pip install --upgrade pip
 .\.venv\Scripts\python.exe -m pip install -r requirements.txt
 ```
@@ -50,7 +50,7 @@ instalação de Python removida; recrie-o como `.venv` com os comandos acima.
 .\.venv\Scripts\python.exe -m pytest -q
 ```
 
-Estado atual: **152 testes aprovados**.
+Estado atual: **156 testes aprovados**.
 
 ## Interface gráfica
 
@@ -101,3 +101,21 @@ próprio HTML.
 
 Também é possível limitar o período com `--inicio AAAA-MM-DD` e
 `--fim AAAA-MM-DD`.
+
+## Distribuição Windows
+
+A configuração do PyInstaller gera uma distribuição em pasta. Na versão
+compilada, o banco e os relatórios ficam em `%LOCALAPPDATA%\FDT Sales Manager`;
+os recursos internos permanecem junto da aplicação.
+
+Depois de criar um `.venv` válido e instalar o PyInstaller:
+
+```powershell
+.\.venv\Scripts\python.exe -m pip install pyinstaller
+powershell -ExecutionPolicy Bypass -File .\scripts\build_release.ps1
+```
+
+O resultado é criado em `dist\FDT Sales Manager`. A distribuição foi validada
+em 03/09/2026 com PyInstaller 6.22.2: a janela abriu corretamente e criou um
+banco isolado e íntegro. O script interrompe o processo com uma mensagem clara
+quando o ambiente está ausente ou inválido.

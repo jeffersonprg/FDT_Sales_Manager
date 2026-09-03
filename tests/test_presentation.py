@@ -67,6 +67,7 @@ def test_interpretar_data_e_hora_de_evento():
 def test_navegacao_contem_todos_os_modulos():
     assert [item[0] for item in NAVIGATION_ITEMS] == [
         "dashboard", "clientes", "produtos", "leads", "pedidos", "csv", "relatorios",
+        "configuracoes",
     ]
 
 

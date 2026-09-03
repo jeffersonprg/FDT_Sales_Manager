@@ -1,10 +1,10 @@
 import sqlite3
-from pathlib import Path
+
+from src.config.paths import DATABASE_PATH as DEFAULT_DATABASE_PATH
 
 
-BASE_DIR = Path(__file__).resolve().parent.parent.parent
-DATA_DIR = BASE_DIR / "src" / "data"
-DATABASE_PATH = DATA_DIR / "fdt_sales_manager.db"
+# A variável permanece neste módulo para os testes poderem substituí-la.
+DATABASE_PATH = DEFAULT_DATABASE_PATH
 
 
 def get_connection() -> sqlite3.Connection:

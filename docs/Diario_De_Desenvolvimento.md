@@ -1136,3 +1136,93 @@ consulta dos indicadores e relatórios.
 
 Executar a validação final de utilização pela interface e preparar a entrega
 do projeto.
+
+# 02/09/2026 - Acabamento e preparação da distribuição
+
+## Objetivo
+
+Reduzir ações acidentais na interface e preparar uma distribuição Windows que
+consiga guardar dados fora da pasta interna do executável.
+
+## Atividades realizadas
+
+- Criado modal reutilizável de confirmação.
+- Adicionada confirmação antes de inativar clientes e produtos.
+- Diferenciadas visualmente as confirmações de pagamento e cancelamento.
+- Adicionados atalhos para fechar e guardar formulários.
+- Adicionada contagem dos registos apresentados nas tabelas.
+- Pedidos cancelados passam a indicar o acesso como cancelado nos detalhes.
+- Centralizada a resolução de recursos e pastas graváveis.
+- Mantido `src/data` durante o desenvolvimento.
+- Definida `%LOCALAPPDATA%\FDT Sales Manager` para a versão compilada.
+- Adicionado suporte à variável `FDT_DATA_DIR`.
+- Criada configuração do PyInstaller em modo de distribuição por pasta.
+- Criado script de build com validação do `.venv` e do PyInstaller.
+
+## Validação
+
+- Confirmações exercitadas num banco temporário.
+- Estados permaneceram inalterados antes da confirmação.
+- Cliente e produto foram inativados apenas depois da confirmação.
+- Caminhos de desenvolvimento, versão compilada e configuração manual testados.
+- Relatórios e migrações continuaram a funcionar após a separação dos caminhos.
+- O banco real permaneceu íntegro e não recebeu dados de teste.
+
+Resultado da suíte completa:
+
+```text
+155 passed
+```
+
+## Limitação encontrada
+
+O `.venv` existente aponta para uma instalação removida do Python 3.13. A
+configuração de build foi validada estaticamente, mas o executável ainda não foi
+gerado. O script agora identifica esse cenário e pede a recriação do ambiente.
+
+## Próxima atividade
+
+Recriar o `.venv`, instalar o PyInstaller, gerar `dist\FDT Sales Manager` e
+validar o executável num ambiente limpo.
+
+# 03/09/2026 - Geração e validação da distribuição Windows
+
+## Objetivo
+
+Recriar o ambiente do projeto, instalar o PyInstaller, gerar a distribuição
+Windows e confirmar que o executável inicia sem utilizar o banco real.
+
+## Atividades realizadas
+
+- Removido o ambiente virtual inválido, que apontava para uma instalação de
+  Python já ausente.
+- Criado um novo `.venv` com Python 3.14.2 e Tk 8.6.
+- Instaladas as dependências do projeto e o PyInstaller 6.22.2.
+- Confirmada a ausência de conflitos entre as dependências instaladas.
+- Gerada a distribuição em `dist\FDT Sales Manager`.
+- Confirmada a inclusão do template do relatório HTML no pacote.
+- Executado o programa compilado com `FDT_DATA_DIR` apontado para uma pasta
+  temporária dentro dos testes.
+- Encerrada apenas a instância criada para a validação.
+
+## Validação
+
+- A janela `FDT Sales Manager` abriu e permaneceu em execução durante o teste.
+- O executável criou as oito tabelas esperadas num banco isolado.
+- `PRAGMA integrity_check` retornou `ok`.
+- `PRAGMA foreign_key_check` não encontrou problemas.
+- O banco real não foi aberto nem alterado.
+- O pacote contém 1.907 arquivos e ocupa aproximadamente 110,69 MB.
+- O executável possui SHA-256
+  `99EB84B1F500893D0D306937FB62EE7CF99EB9D78D115B5FB6C89ABC2F5DE911`.
+
+Resultado da suíte completa:
+
+```text
+156 passed
+```
+
+## Próxima atividade
+
+Executar a aceitação funcional com uma cópia dos dados reais e preparar a
+entrega da pasta `dist\FDT Sales Manager` ao utilizador final.

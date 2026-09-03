@@ -7,6 +7,14 @@ from pathlib import Path
 
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 
+from src.config.paths import (
+    APP_ICON_PATH,
+    BRAND_LOGO_PATH,
+    BRAND_NAME,
+    BRAND_TAGLINE,
+    REPORTS_DIR,
+    TEMPLATES_DIR,
+)
 from src.database.database import get_connection
 from src.services.dashboard_service import DashboardService
 from src.services.estatisticas_service import EstatisticasService
@@ -14,12 +22,27 @@ from src.services.faturacao_service import FaturacaoService
 from src.services.importacao_csv_service import ImportacaoCSVService
 
 
-BASE_DIR = Path(__file__).resolve().parent.parent
-TEMPLATES_DIR = BASE_DIR / "templates"
-REPORTS_DIR = BASE_DIR / "data" / "reports"
-
-
 class RelatorioHTMLService:
+    @staticmethod
+    def _imagem_base64(caminho: Path) -> str:
+        """Converte uma imagem em data URI para manter o relatório autônomo."""
+
+        if not caminho.is_file():
+            raise FileNotFoundError(
+                f"A imagem da marca não foi encontrada em {caminho}."
+            )
+
+        extensao = caminho.suffix.lower()
+        tipos = {
+            ".png": "image/png",
+            ".jpg": "image/jpeg",
+            ".jpeg": "image/jpeg",
+            ".svg": "image/svg+xml",
+        }
+        tipo = tipos.get(extensao, "application/octet-stream")
+        dados = base64.b64encode(caminho.read_bytes()).decode("ascii")
+        return f"data:{tipo};base64,{dados}"
+
     @staticmethod
     def _formatar_moeda(valor) -> str:
         numero = float(valor or 0)
@@ -256,6 +279,14 @@ class RelatorioHTMLService:
         template = ambiente.get_template("relatorio_comercial.html")
         conteudo = template.render(
             titulo=titulo.strip() or "Relatório Comercial",
+            logo_data_uri=RelatorioHTMLService._imagem_base64(
+                BRAND_LOGO_PATH
+            ),
+            favicon_data_uri=RelatorioHTMLService._imagem_base64(
+                APP_ICON_PATH
+            ),
+            brand_name=BRAND_NAME,
+            brand_tagline=BRAND_TAGLINE,
             gerado_em=gerado_em,
             periodo_inicio=inicio,
             periodo_fim=fim,

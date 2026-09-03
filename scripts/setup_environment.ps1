@@ -1,6 +1,6 @@
 param(
     [string]$PythonLauncher = "py",
-    [string]$PythonVersion = "-3.13"
+    [string]$PythonVersion = "-3.14"
 )
 
 $ErrorActionPreference = "Stop"

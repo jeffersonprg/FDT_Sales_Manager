@@ -2,17 +2,27 @@
 
 from __future__ import annotations
 
+import weakref
 from tkinter import ttk
 
 import customtkinter as ctk
 
-from src.views.theme import COLORS, FONT_FAMILY
+from src.views.theme import COLORS, FONT_FAMILY, cor_atual
 
 
 class FormDialog(ctk.CTkToplevel):
     """Cria formulários simples a partir de uma lista de campos."""
 
-    def __init__(self, master, title, fields, initial, on_submit):
+    def __init__(
+        self,
+        master,
+        title,
+        fields,
+        initial,
+        on_submit,
+        submit_text="Guardar",
+        danger=False,
+    ):
         super().__init__(master)
         self.title(title)
         self.geometry("680x700")
@@ -54,13 +64,13 @@ class FormDialog(ctk.CTkToplevel):
                 widget.set(str(value or options[0]))
             elif kind == "text":
                 widget = ctk.CTkTextbox(
-                    form, height=90, fg_color="#F8FAFC",
+                    form, height=90, fg_color=COLORS["input"],
                     border_width=1, border_color=COLORS["border"],
                 )
                 widget.insert("1.0", str(value or ""))
             else:
                 widget = ctk.CTkEntry(
-                    form, height=38, fg_color="#F8FAFC",
+                    form, height=38, fg_color=COLORS["input"],
                     border_color=COLORS["border"],
                 )
                 if value not in (None, ""):
@@ -82,10 +92,13 @@ class FormDialog(ctk.CTkToplevel):
             hover_color=COLORS["border"],
         ).grid(row=1, column=1, padx=(0, 10))
         ctk.CTkButton(
-            footer, text="Guardar", width=130, height=40, command=self._submit,
-            fg_color=COLORS["blue"], hover_color=COLORS["blue_hover"],
+            footer, text=submit_text, width=150, height=40, command=self._submit,
+            fg_color=COLORS["danger"] if danger else COLORS["blue"],
+            hover_color=COLORS["danger_hover"] if danger else COLORS["blue_hover"],
             font=(FONT_FAMILY, 12, "bold"),
         ).grid(row=1, column=2)
+        self.bind("<Escape>", lambda _event: self.destroy())
+        self.bind("<Control-Return>", lambda _event: self._submit())
         self.after(50, self.grab_set)
 
     def _values(self):
@@ -98,6 +111,64 @@ class FormDialog(ctk.CTkToplevel):
         # O modal permanece aberto quando o domínio rejeita algum valor.
         try:
             self.on_submit(self._values())
+        except Exception as error:
+            self.error.configure(text=str(error))
+            return
+        self.destroy()
+
+
+class ConfirmationDialog(ctk.CTkToplevel):
+    """Pede confirmação antes de executar uma alteração sensível."""
+
+    def __init__(
+        self,
+        master,
+        title,
+        message,
+        on_confirm,
+        confirm_text="Confirmar",
+        danger=False,
+    ):
+        super().__init__(master)
+        self.title(title)
+        self.geometry("480x250")
+        self.resizable(False, False)
+        self.configure(fg_color=COLORS["background"])
+        self.transient(master.winfo_toplevel())
+        self.on_confirm = on_confirm
+        self.grid_columnconfigure(0, weight=1)
+        ctk.CTkLabel(
+            self, text=title, anchor="w", font=(FONT_FAMILY, 20, "bold"),
+            text_color=COLORS["text"],
+        ).grid(row=0, column=0, sticky="ew", padx=24, pady=(24, 8))
+        ctk.CTkLabel(
+            self, text=message, anchor="w", justify="left", wraplength=430,
+            font=(FONT_FAMILY, 12), text_color=COLORS["muted"],
+        ).grid(row=1, column=0, sticky="ew", padx=24)
+        self.error = ctk.CTkLabel(
+            self, text="", anchor="w", text_color=COLORS["danger"],
+            font=(FONT_FAMILY, 11),
+        )
+        self.error.grid(row=2, column=0, sticky="ew", padx=24, pady=(8, 0))
+        actions = ctk.CTkFrame(self, fg_color="transparent")
+        actions.grid(row=3, column=0, sticky="e", padx=24, pady=20)
+        ctk.CTkButton(
+            actions, text="Voltar", width=100, command=self.destroy,
+            fg_color=COLORS["surface_alt"], text_color=COLORS["text"],
+            hover_color=COLORS["border"],
+        ).pack(side="left", padx=(0, 10))
+        ctk.CTkButton(
+            actions, text=confirm_text, width=130, command=self._confirm,
+            fg_color=COLORS["danger"] if danger else COLORS["blue"],
+            hover_color=COLORS["danger_hover"] if danger else COLORS["blue_hover"],
+        ).pack(side="left")
+        self.bind("<Escape>", lambda _event: self.destroy())
+        self.bind("<Return>", lambda _event: self._confirm())
+        self.after(50, self.grab_set)
+
+    def _confirm(self):
+        try:
+            self.on_confirm()
         except Exception as error:
             self.error.configure(text=str(error))
             return
@@ -152,23 +223,13 @@ class MetricCard(ctk.CTkFrame):
 class DataTable(ctk.CTkFrame):
     """Padroniza tabelas e mantém a leitura alternada das linhas."""
 
+    _instances = weakref.WeakSet()
+
     def __init__(self, master, columns: tuple[tuple[str, str, int], ...]):
         super().__init__(master, fg_color=COLORS["surface"], corner_radius=12)
         self.columns = columns
-        style = ttk.Style()
-        style.theme_use("clam")
-        style.configure(
-            "FDT.Treeview", background=COLORS["surface"],
-            fieldbackground=COLORS["surface"], foreground=COLORS["text"],
-            rowheight=36, borderwidth=0, font=(FONT_FAMILY, 10),
-        )
-        style.configure(
-            "FDT.Treeview.Heading", background=COLORS["surface_alt"],
-            foreground=COLORS["text"], relief="flat",
-            font=(FONT_FAMILY, 10, "bold"), padding=(8, 9),
-        )
-        style.map("FDT.Treeview", background=[("selected", "#DBEAFE")],
-                  foreground=[("selected", COLORS["text"])])
+        self._instances.add(self)
+        self._configurar_estilo()
         ids = tuple(column[0] for column in columns)
         self.tree = ttk.Treeview(
             self, columns=ids, show="headings", style="FDT.Treeview",
@@ -176,17 +237,66 @@ class DataTable(ctk.CTkFrame):
         for column_id, title, width in columns:
             self.tree.heading(column_id, text=title)
             self.tree.column(column_id, width=width, minwidth=70, anchor="w")
-        scrollbar = ttk.Scrollbar(self, orient="vertical", command=self.tree.yview)
+        scrollbar = ttk.Scrollbar(
+            self,
+            orient="vertical",
+            command=self.tree.yview,
+            style="FDT.Vertical.TScrollbar",
+        )
         self.tree.configure(yscrollcommand=scrollbar.set)
         self.tree.pack(side="left", fill="both", expand=True, padx=(8, 0), pady=8)
         scrollbar.pack(side="right", fill="y", padx=(0, 8), pady=8)
+        self.atualizar_tema()
+
+    @staticmethod
+    def _configurar_estilo() -> None:
+        style = ttk.Style()
+        style.theme_use("clam")
+        style.configure(
+            "FDT.Treeview", background=cor_atual("surface"),
+            fieldbackground=cor_atual("surface"), foreground=cor_atual("text"),
+            rowheight=36, borderwidth=0, font=(FONT_FAMILY, 10),
+        )
+        style.configure(
+            "FDT.Treeview.Heading", background=cor_atual("surface_alt"),
+            foreground=cor_atual("text"), relief="flat",
+            font=(FONT_FAMILY, 10, "bold"), padding=(8, 9),
+        )
+        style.map(
+            "FDT.Treeview",
+            background=[("selected", cor_atual("selection"))],
+            foreground=[("selected", cor_atual("text"))],
+        )
+        style.configure(
+            "FDT.Vertical.TScrollbar",
+            troughcolor=cor_atual("background"),
+            background=cor_atual("surface_alt"),
+            bordercolor=cor_atual("border"),
+            arrowcolor=cor_atual("muted"),
+            darkcolor=cor_atual("surface_alt"),
+            lightcolor=cor_atual("surface_alt"),
+        )
+        style.map(
+            "FDT.Vertical.TScrollbar",
+            background=[("active", cor_atual("border"))],
+        )
+
+    def atualizar_tema(self) -> None:
+        self._configurar_estilo()
+        self.tree.tag_configure("even", background=cor_atual("surface"))
+        self.tree.tag_configure("odd", background=cor_atual("table_alt"))
+
+    @classmethod
+    def atualizar_todas(cls) -> None:
+        for table in tuple(cls._instances):
+            if table.winfo_exists():
+                table.atualizar_tema()
 
     def definir_linhas(self, rows):
         self.tree.delete(*self.tree.get_children())
         for index, row in enumerate(rows):
             self.tree.insert("", "end", values=row, tags=("even" if index % 2 == 0 else "odd",))
-        self.tree.tag_configure("even", background=COLORS["surface"])
-        self.tree.tag_configure("odd", background="#F8FAFC")
+        self.atualizar_tema()
 
     def obter_linha_selecionada(self):
         selection = self.tree.selection()
@@ -208,8 +318,8 @@ class StatusBanner(ctk.CTkLabel):
     def mostrar(self, texto: str, tipo: str = "info"):
         cores = {
             "info": (COLORS["surface_alt"], COLORS["muted"]),
-            "success": ("#E6FFFA", COLORS["success"]),
-            "error": ("#FFF5F5", COLORS["danger"]),
+            "success": (COLORS["success_bg"], COLORS["success"]),
+            "error": (COLORS["danger_bg"], COLORS["danger"]),
         }
         fundo, texto_cor = cores[tipo]
         self.configure(text=f"  {texto}", fg_color=fundo, text_color=texto_cor)

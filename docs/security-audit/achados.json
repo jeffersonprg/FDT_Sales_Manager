@@ -1,0 +1,120 @@
+{
+  "schema_version": "1.0",
+  "project": "FDT Sales Manager",
+  "audit_date": "2026-09-03",
+  "language": "pt-BR",
+  "scope": {
+    "included": [
+      "Código Python em src/ e app.py",
+      "Template HTML Jinja2",
+      "Interface desktop CustomTkinter",
+      "Persistência SQLite e todas as consultas SQL",
+      "Scripts PowerShell, configuração PyInstaller, documentação e histórico Git"
+    ],
+    "excluded_initially": [
+      "node_modules, venv, .venv, vendor, caches e artefatos gerados"
+    ]
+  },
+  "stack": {
+    "language": "Python 3.13 documentado; Python 3.14.2 no ambiente de validação",
+    "application_type": "Aplicativo desktop monousuário",
+    "framework_ui": "CustomTkinter/Tkinter",
+    "database": "SQLite",
+    "orm_query_builder": "Nenhum; sqlite3 com SQL direto parametrizado",
+    "authentication": "Nenhuma autenticação de aplicação; fronteira de confiança é o usuário/processo do Windows",
+    "frontend": "GUI desktop; Jinja2 gera relatório HTML estático e autônomo",
+    "deploy": "PyInstaller onedir; sem Docker, CI, Helm ou Terraform"
+  },
+  "summary": {
+    "confirmed_vulnerabilities": 0,
+    "confirmed_dangerous_configurations": 0,
+    "defensive_improvements": 1,
+    "severity": {
+      "critical": 0,
+      "high": 0,
+      "medium": 0,
+      "low": 0,
+      "informational": 1
+    },
+    "categories": {
+      "banco_sem_tranca": 0,
+      "permissao_no_navegador": 0,
+      "idor": 0,
+      "chaves_expostas": 0,
+      "xss": 1
+    }
+  },
+  "findings": [
+    {
+      "id": "I-001",
+      "classification": "melhoria_defensiva_informativa",
+      "severity": "informativa",
+      "category": "INPUTS SEM TRATAMENTO (XSS)",
+      "title": "Reforçar defesa em profundidade e testes de regressão XSS do relatório HTML",
+      "status": "não é vulnerabilidade atual",
+      "evidence": [
+        {
+          "path": "src/templates/relatorio_comercial.html",
+          "lines": "3-8",
+          "snippet": "<head>\n  <meta charset=\"utf-8\">\n  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n  <title>{{ titulo }}</title>\n  <link rel=\"icon\" type=\"image/png\" href=\"{{ favicon_data_uri }}\">\n  <style>",
+          "observation": "O documento não declara Content-Security-Policy; isso é camada adicional, não correção de uma exploração atual."
+        },
+        {
+          "path": "tests/test_relatorio_html_service.py",
+          "lines": "92-103",
+          "snippet": "def test_relatorio_escapa_titulo_html(...):\n    ... titulo=\"<script>alert('x')</script>\" ...\n    assert \"<script>alert\" not in conteudo\n    assert \"&lt;script&gt;\" in conteudo",
+          "observation": "O teste versionado cobre o título, mas não todos os campos persistidos exibidos no relatório."
+        }
+      ],
+      "why_exploitable": "Não é explorável no estado auditado. Jinja2 está com autoescape ativo e os valores interpolados em SVG passam por html.escape. O risco existe somente se uma alteração futura remover essas proteções ou introduzir um novo sink HTML inseguro.",
+      "impact": "Reduzir a probabilidade e o impacto de uma regressão futura que permita script ativo em relatórios abertos no navegador.",
+      "conditions": [
+        "Exigiria regressão futura no escape/sanitização ou novo ponto de HTML inseguro.",
+        "O usuário precisaria abrir o relatório HTML contendo dado malicioso."
+      ],
+      "recommendation": "Adicionar CSP restritiva compatível com estilos e imagens data:, e testes parametrizados para título, cliente, produto, referência externa e nome de arquivo importado, incluindo o SVG decodificado.",
+      "issue_group": "ISSUE-001"
+    }
+  ],
+  "verified_correct": [
+    {
+      "area": "XSS no template",
+      "evidence": "src/services/relatorio_html_service.py:268-271",
+      "result": "Jinja2 usa select_autoescape para html/xml."
+    },
+    {
+      "area": "XSS em SVG",
+      "evidence": "src/services/relatorio_html_service.py:101-115 e 165-169",
+      "result": "Produto, valor e mês são escapados antes da montagem do SVG."
+    },
+    {
+      "area": "SQL",
+      "evidence": "107 chamadas execute auditadas; 105 literais e 2 f-strings internas em src/database/database.py:28-30 e 53-60",
+      "result": "Valores externos usam placeholders; f-strings interpolam apenas identificadores fixos de migração."
+    },
+    {
+      "area": "Rotas/IDOR",
+      "evidence": "Varredura AST de todos os .py em src/",
+      "result": "Zero handlers HTTP; categoria IDOR remota não se aplica à arquitetura atual."
+    },
+    {
+      "area": "Segredos",
+      "evidence": "Código atual, documentação, scripts e todos os commits em git rev-list --all",
+      "result": "Zero correspondências verificadas para famílias de chave, token, senha ou chave privada."
+    },
+    {
+      "area": "Bundle de produção",
+      "evidence": "1.907 arquivos e 115.981.209 bytes em dist/FDT Sales Manager",
+      "result": "Nenhum segredo confirmado, nenhuma extensão sensível e nenhum PEM privado; 6 hits preliminares eram símbolos compilados falsos positivos."
+    },
+    {
+      "area": "Isolamento local",
+      "evidence": "src/config/paths.py:27-38",
+      "result": "No build, os dados ficam no LocalAppData do usuário do Windows; não existe modelo multi-tenant."
+    }
+  ],
+  "limitations": [
+    "A suíte completa coletou 156 testes e avançou até 59% antes do timeout de 120 segundos. Os 5 testes do relatório passaram em execução isolada.",
+    "Nenhum serviço externo, produção ou banco real foi acessado; o teste dinâmico XSS usou SQLite temporário."
+  ]
+}

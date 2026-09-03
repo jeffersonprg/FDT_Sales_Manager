@@ -23,7 +23,13 @@ from src.services.cliente_service import ClienteService
 from src.services.lead_service import LeadService
 from src.services.pedido_service import PedidoService
 from src.services.produto_service import ProdutoService
-from src.views.components import DataTable, FormDialog, PageHeader, StatusBanner
+from src.views.components import (
+    ConfirmationDialog,
+    DataTable,
+    FormDialog,
+    PageHeader,
+    StatusBanner,
+)
 from src.views.order_dialog import OrderDetailsDialog, OrderDialog
 from src.views.theme import COLORS, FONT_FAMILY
 
@@ -59,7 +65,11 @@ class ListView(ctk.CTkFrame):
         self.status.mostrar("Selecione uma linha para editar ou alterar o estado.")
 
     def carregar(self):
-        self.table.definir_linhas(self.obter_linhas(self.search.get().strip()))
+        rows = self.obter_linhas(self.search.get().strip())
+        self.table.definir_linhas(rows)
+        total = len(rows)
+        descricao = "registo apresentado" if total == 1 else "registos apresentados"
+        self.status.mostrar(f"{total} {descricao}.")
 
     def adicionar_acao(self, texto, command, destaque=False):
         column = max(
@@ -154,13 +164,28 @@ class ClientesView(ListView):
             return
         cliente = ClienteService.buscar_cliente(cliente_id, incluir_inativos=True)
         if cliente.estado == "ATIVO":
-            ClienteService.remover_cliente(cliente_id)
-            mensagem = "Cliente inativado; o histórico foi preservado."
+            self.dialog = ConfirmationDialog(
+                self,
+                "Inativar cliente",
+                f"O cliente {cliente.nome} deixará de receber novos pedidos. "
+                "O histórico será preservado.",
+                lambda: self._inativar(cliente_id),
+                confirm_text="Inativar",
+                danger=True,
+            )
+            return
         else:
             ClienteService.reativar_cliente(cliente_id)
             mensagem = "Cliente reativado com sucesso."
         self.carregar()
         self.status.mostrar(mensagem, "success")
+
+    def _inativar(self, cliente_id):
+        ClienteService.remover_cliente(cliente_id)
+        self.carregar()
+        self.status.mostrar(
+            "Cliente inativado; o histórico foi preservado.", "success",
+        )
 
 
 class ProdutosView(ListView):
@@ -237,13 +262,28 @@ class ProdutosView(ListView):
             return
         produto = ProdutoService.buscar_produto(produto_id)
         if produto.ativo:
-            ProdutoService.desativar_produto(produto_id)
-            mensagem = "Produto inativado; o histórico foi preservado."
+            self.dialog = ConfirmationDialog(
+                self,
+                "Inativar produto",
+                f"O produto {produto.nome} deixará de estar disponível em novos pedidos. "
+                "As vendas anteriores serão preservadas.",
+                lambda: self._inativar(produto_id),
+                confirm_text="Inativar",
+                danger=True,
+            )
+            return
         else:
             ProdutoService.reativar_produto(produto_id)
             mensagem = "Produto reativado com sucesso."
         self.carregar()
         self.status.mostrar(mensagem, "success")
+
+    def _inativar(self, produto_id):
+        ProdutoService.desativar_produto(produto_id)
+        self.carregar()
+        self.status.mostrar(
+            "Produto inativado; o histórico foi preservado.", "success",
+        )
 
 
 class LeadsView(ListView):
@@ -455,6 +495,8 @@ class PedidosView(ListView):
         self.dialog = FormDialog(
             self, titulo, fields, {},
             lambda values: self._aplicar_transicao(pedido_id, novo_estado, values),
+            submit_text="Confirmar pagamento" if novo_estado == "PAGO" else "Confirmar cancelamento",
+            danger=novo_estado == "CANCELADO",
         )
 
     def _aplicar_transicao(self, pedido_id, novo_estado, values):

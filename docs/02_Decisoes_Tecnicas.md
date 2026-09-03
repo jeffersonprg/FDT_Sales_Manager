@@ -2,7 +2,7 @@
 
 ## Plataforma
 
-- Linguagem: Python 3.13
+- Linguagem: Python 3.14
 - Interface: CustomTkinter
 - Banco de dados: SQLite
 - Leitura e análise de CSV: Pandas
@@ -48,7 +48,7 @@ O projeto utiliza uma arquitetura modular:
 ## Testes automatizados
 
 Os testes ficam em `tests/` e utilizam um banco SQLite isolado por teste.
-O estado atual é de 152 testes aprovados.
+O estado atual é de 156 testes aprovados.
 
 ## Arquitetura da interface
 
@@ -60,6 +60,16 @@ O estado atual é de 152 testes aprovados.
 - As telas consultam os serviços existentes e não duplicam regras comerciais.
 - Pandas e Jinja2 são carregados somente quando a importação ou a geração de
   relatório é executada, reduzindo o acoplamento do arranque da aplicação.
+
+## Distribuição e dados graváveis
+
+- O PyInstaller utiliza uma configuração própria em modo `onedir`.
+- Templates e dados internos do CustomTkinter são incluídos como recursos.
+- Em desenvolvimento, o SQLite e os relatórios continuam em `src/data`.
+- Na aplicação compilada, ficheiros graváveis ficam em
+  `%LOCALAPPDATA%\FDT Sales Manager`.
+- A variável `FDT_DATA_DIR` permite definir outra pasta quando necessário.
+- O banco nunca é criado dentro da pasta temporária de recursos do executável.
 
 ## Contrato de importação CSV
 

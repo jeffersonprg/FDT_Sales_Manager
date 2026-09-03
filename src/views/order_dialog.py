@@ -45,6 +45,8 @@ class OrderDialog(ctk.CTkToplevel):
         self._build_order_fields()
         self._build_items()
         self._build_footer()
+        self.bind("<Escape>", lambda _event: self.destroy())
+        self.bind("<Control-Return>", lambda _event: self._submit())
         self.after(50, self.grab_set)
 
     def _build_header(self):
@@ -56,7 +58,7 @@ class OrderDialog(ctk.CTkToplevel):
         ).pack(fill="x", padx=26, pady=(20, 2))
         ctk.CTkLabel(
             header, text="Escolha o cliente e adicione pelo menos um produto.",
-            anchor="w", text_color="#BCCCDC", font=(FONT_FAMILY, 11),
+            anchor="w", text_color=COLORS["header_muted"], font=(FONT_FAMILY, 11),
         ).pack(fill="x", padx=26, pady=(0, 20))
 
     def _build_order_fields(self):
@@ -116,7 +118,7 @@ class OrderDialog(ctk.CTkToplevel):
         ctk.CTkButton(
             actions, text="Remover item", width=120, height=34,
             command=self.remover_item, fg_color=COLORS["danger"],
-            hover_color="#9B2C2C",
+            hover_color=COLORS["danger_hover"],
         ).grid(row=0, column=1)
 
     def _build_footer(self):
@@ -256,9 +258,11 @@ class OrderDetailsDialog(ctk.CTkToplevel):
                 produtos.get(item.produto_id, f"Produto #{item.produto_id}"),
                 item.quantidade, formatar_moeda(item.preco_unitario),
                 formatar_moeda(item.subtotal),
-                "Aguarda pagamento" if item.inicio_acesso is None else (
+                "Cancelado" if pedido.estado == "CANCELADO" else (
+                    "Aguarda pagamento" if item.inicio_acesso is None else (
                     f"Desde {formatar_data(item.inicio_acesso)}" if item.fim_acesso is None
                     else f"{formatar_data(item.inicio_acesso)} a {formatar_data(item.fim_acesso)}"
+                    )
                 ),
             ) for item in pedido.itens
         ])
@@ -266,4 +270,5 @@ class OrderDetailsDialog(ctk.CTkToplevel):
             self, text="Fechar", width=110, command=self.destroy,
             fg_color=COLORS["navy"], hover_color=COLORS["navy_hover"],
         ).grid(row=3, column=0, sticky="e", padx=24, pady=20)
+        self.bind("<Escape>", lambda _event: self.destroy())
         self.after(50, self.grab_set)

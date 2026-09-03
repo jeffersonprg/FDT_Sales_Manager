@@ -14,6 +14,7 @@ NAVIGATION_ITEMS = (
     ("pedidos", "Pedidos", "▤"),
     ("csv", "Importar CSV", "⇧"),
     ("relatorios", "Relatórios", "▥"),
+    ("configuracoes", "Configurações", "⚙"),
 )
 
 

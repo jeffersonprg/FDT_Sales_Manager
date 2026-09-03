@@ -85,3 +85,9 @@
 - [x] Adicionar criação e detalhes de pedidos
 - [x] Adicionar composição de pedidos com vários itens
 - [x] Adicionar pagamento e cancelamento
+- [x] Confirmar inativação de clientes e produtos
+- [x] Destacar visualmente ações de cancelamento
+- [x] Adicionar atalhos de teclado nos modais
+- [x] Preparar caminhos graváveis para a aplicação compilada
+- [x] Criar configuração e script de build do PyInstaller
+- [x] Gerar e validar a distribuição Windows final
