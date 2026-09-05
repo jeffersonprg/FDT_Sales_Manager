@@ -26,10 +26,14 @@ def test_formatadores_da_interface():
 
 
 def test_interpretar_data_filtro():
-    assert interpretar_data_filtro(" 2026-08-25 ") == date(2026, 8, 25)
+    assert interpretar_data_filtro(" 25/08/2026 ") == date(2026, 8, 25)
     assert interpretar_data_filtro("  ") is None
-    with pytest.raises(ValueError, match="AAAA-MM-DD"):
-        interpretar_data_filtro("25/08/2026")
+    with pytest.raises(ValueError, match="DD/MM/AAAA"):
+        interpretar_data_filtro("31/02/2026")
+
+
+def test_interpretar_data_filtro_mantem_compatibilidade_iso():
+    assert interpretar_data_filtro("2026-08-25") == date(2026, 8, 25)
 
 
 def test_conversores_de_formulario():

@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import customtkinter as ctk
 
+from src.i18n import tr
 from src.models.cliente import Cliente
 from src.models.lead import Lead
 from src.models.pedido import Pedido
@@ -48,14 +49,14 @@ class ListView(ctk.CTkFrame):
         self.filters.grid(row=1, column=0, sticky="ew", padx=28, pady=(0, 12))
         self.filters.grid_columnconfigure(0, weight=1)
         self.search = ctk.CTkEntry(
-            self.filters, placeholder_text="Pesquisar…", height=38,
+            self.filters, placeholder_text=tr("Pesquisar…"), height=38,
             fg_color=COLORS["surface"], border_color=COLORS["border"],
             font=(FONT_FAMILY, 12),
         )
         self.search.grid(row=0, column=0, sticky="ew")
         self.search.bind("<Return>", lambda _event: self.carregar())
         ctk.CTkButton(
-            self.filters, text="Pesquisar", width=100, height=38, command=self.carregar,
+            self.filters, text=tr("Pesquisar"), width=100, height=38, command=self.carregar,
             fg_color=COLORS["blue"], hover_color=COLORS["blue_hover"],
         ).grid(row=0, column=1, padx=(10, 0))
         self.table = DataTable(self, columns)
@@ -68,8 +69,8 @@ class ListView(ctk.CTkFrame):
         rows = self.obter_linhas(self.search.get().strip())
         self.table.definir_linhas(rows)
         total = len(rows)
-        descricao = "registo apresentado" if total == 1 else "registos apresentados"
-        self.status.mostrar(f"{total} {descricao}.")
+        mensagem = "{count} registo apresentado." if total == 1 else "{count} registos apresentados."
+        self.status.mostrar(tr(mensagem, count=total))
 
     def adicionar_acao(self, texto, command, destaque=False):
         column = max(
@@ -77,7 +78,7 @@ class ListView(ctk.CTkFrame):
             for widget in self.filters.grid_slaves(row=0)
         ) + 1
         button = ctk.CTkButton(
-            self.filters, text=texto, width=110, height=38, command=command,
+            self.filters, text=tr(texto), width=110, height=38, command=command,
             fg_color=COLORS["blue"] if destaque else COLORS["navy"],
             hover_color=COLORS["blue_hover"] if destaque else COLORS["navy_hover"],
             font=(FONT_FAMILY, 11, "bold"),
@@ -119,7 +120,7 @@ class ClientesView(ListView):
     def obter_linhas(self, termo):
         clientes = ClienteService.pesquisar_clientes(termo, incluir_inativos=True)
         return [(c.id, c.nome, formatar_texto(c.empresa), formatar_texto(c.email),
-                 formatar_texto(c.telefone), c.pais, c.estado) for c in clientes]
+                 formatar_texto(c.telefone), c.pais, tr(c.estado)) for c in clientes]
 
     def novo(self):
         self.dialog = FormDialog(
@@ -167,8 +168,7 @@ class ClientesView(ListView):
             self.dialog = ConfirmationDialog(
                 self,
                 "Inativar cliente",
-                f"O cliente {cliente.nome} deixará de receber novos pedidos. "
-                "O histórico será preservado.",
+                tr("O cliente {name} deixará de receber novos pedidos. O histórico será preservado.", name=cliente.nome),
                 lambda: self._inativar(cliente_id),
                 confirm_text="Inativar",
                 danger=True,
@@ -213,8 +213,8 @@ class ProdutosView(ListView):
     def obter_linhas(self, termo):
         produtos = ProdutoService.pesquisar_produtos(termo, apenas_ativos=False)
         return [(p.id, p.nome, formatar_texto(p.categoria), formatar_moeda(p.preco),
-                 "Vitalício" if p.tipo_validade == "VITALICIO" else f"{p.duracao_dias} dias",
-                 "ATIVO" if p.ativo else "INATIVO") for p in produtos]
+                 tr("Vitalício") if p.tipo_validade == "VITALICIO" else tr("{days} dias", days=p.duracao_dias),
+                 tr("ATIVO" if p.ativo else "INATIVO")) for p in produtos]
 
     def novo(self):
         self.dialog = FormDialog(
@@ -265,8 +265,7 @@ class ProdutosView(ListView):
             self.dialog = ConfirmationDialog(
                 self,
                 "Inativar produto",
-                f"O produto {produto.nome} deixará de estar disponível em novos pedidos. "
-                "As vendas anteriores serão preservadas.",
+                tr("O produto {name} deixará de estar disponível em novos pedidos. As vendas anteriores serão preservadas.", name=produto.nome),
                 lambda: self._inativar(produto_id),
                 confirm_text="Inativar",
                 danger=True,
@@ -308,10 +307,10 @@ class LeadsView(ListView):
         return [(l.id, l.nome, formatar_texto(l.empresa),
                  formatar_texto(l.email or l.telefone), formatar_texto(l.origem),
                  formatar_texto(produtos.get(l.produto_interesse_id)),
-                 l.estado, formatar_data(l.criado_em)) for l in leads]
+                 tr(l.estado), formatar_data(l.criado_em)) for l in leads]
 
     def _opcoes_produtos(self):
-        return ("— Sem produto —",) + tuple(
+        return (tr("— Sem produto —"),) + tuple(
             formatar_opcao_entidade(produto.id, produto.nome)
             for produto in ProdutoService.listar_produtos(apenas_ativos=True)
         )
@@ -328,7 +327,7 @@ class LeadsView(ListView):
 
     def _opcao_produto(self, produto_id):
         if produto_id is None:
-            return "— Sem produto —"
+            return tr("— Sem produto —")
         produto = ProdutoService.buscar_produto(produto_id)
         return formatar_opcao_entidade(produto.id, produto.nome)
 
@@ -344,7 +343,7 @@ class LeadsView(ListView):
     def novo(self):
         self.dialog = FormDialog(
             self, "Novo lead", self._fields(),
-            {"estado": "NOVO", "produto_interesse": "— Sem produto —"}, self._criar,
+            {"estado": "NOVO", "produto_interesse": tr("— Sem produto —")}, self._criar,
         )
 
     def _criar(self, values):
@@ -398,7 +397,7 @@ class LeadsView(ListView):
         )
         initial = {"pais": "Portugal", "observacoes_cliente": lead.observacoes or ""}
         self.dialog = FormDialog(
-            self, f"Converter {lead.nome}", fields, initial,
+            self, tr("Converter {name}", name=lead.nome), fields, initial,
             lambda values: self._converter(lead, values),
         )
 
@@ -413,7 +412,7 @@ class LeadsView(ListView):
         )
         self.carregar()
         self.status.mostrar(
-            f"Lead convertido com sucesso no cliente #{cliente_id}.", "success",
+            tr("Lead convertido com sucesso no cliente #{id}.", id=cliente_id), "success",
         )
 
 
@@ -447,8 +446,8 @@ class PedidosView(ListView):
                 or termo in clientes.get(p.cliente_id, "").casefold()
             )]
         return [(p.id, formatar_texto(p.referencia_externa),
-                 clientes.get(p.cliente_id, f"Cliente #{p.cliente_id}"),
-                 formatar_data(p.data_pedido), p.estado, len(p.itens),
+                 clientes.get(p.cliente_id, tr("Cliente #{id}", id=p.cliente_id)),
+                 formatar_data(p.data_pedido), tr(p.estado), len(p.itens),
                  formatar_moeda(p.total)) for p in pedidos]
 
     def novo(self):
@@ -464,7 +463,7 @@ class PedidosView(ListView):
     def _criar(self, pedido: Pedido):
         pedido_id = PedidoService.criar_pedido(pedido)
         self.carregar()
-        self.status.mostrar(f"Pedido #{pedido_id} criado como PENDENTE.", "success")
+        self.status.mostrar(tr("Pedido #{id} criado como PENDENTE.", id=pedido_id), "success")
 
     def detalhes(self):
         pedido_id = self.id_selecionado()
@@ -488,7 +487,7 @@ class PedidosView(ListView):
         pedido = PedidoService.buscar_pedido(pedido_id)
         if novo_estado not in PedidoService.TRANSICOES_VALIDAS[pedido.estado]:
             self.status.mostrar(
-                f"Não é possível alterar um pedido {pedido.estado} para {novo_estado}.", "error",
+                tr("Não é possível alterar um pedido {current} para {new}.", current=tr(pedido.estado), new=tr(novo_estado)), "error",
             )
             return
         fields = (("data_evento", "Data e hora (AAAA-MM-DD HH:MM). Deixe vazio para agora"),)
@@ -508,5 +507,5 @@ class PedidosView(ListView):
         if not atualizado:
             raise ValueError("Pedido não encontrado.")
         self.carregar()
-        acao = "pago" if novo_estado == "PAGO" else "cancelado"
-        self.status.mostrar(f"Pedido #{pedido_id} marcado como {acao}.", "success")
+        acao = tr("pago" if novo_estado == "PAGO" else "cancelado")
+        self.status.mostrar(tr("Pedido #{id} marcado como {action}.", id=pedido_id, action=acao), "success")

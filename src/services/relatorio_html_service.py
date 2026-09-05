@@ -16,6 +16,7 @@ from src.config.paths import (
     TEMPLATES_DIR,
 )
 from src.database.database import get_connection
+from src.i18n import get_language, normalizar_idioma, tr_for
 from src.services.dashboard_service import DashboardService
 from src.services.estatisticas_service import EstatisticasService
 from src.services.faturacao_service import FaturacaoService
@@ -82,7 +83,9 @@ class RelatorioHTMLService:
         return base64.b64encode(conteudo.encode("utf-8")).decode("ascii")
 
     @staticmethod
-    def _grafico_produtos(produtos: list[dict]) -> str | None:
+    def _grafico_produtos(
+        produtos: list[dict], idioma: str = "pt",
+    ) -> str | None:
         if not produtos:
             return None
 
@@ -94,10 +97,11 @@ class RelatorioHTMLService:
         altura = 72 + len(selecionados) * altura_linha
         area = largura - margem_esquerda - margem_direita
         maior_valor = max(item["faturacao_total"] for item in selecionados) or 1
+        titulo = escape(tr_for(idioma, "Faturação por produto"))
         elementos = [
-            f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {largura} {altura}" role="img" aria-label="Faturação por produto">',
+            f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {largura} {altura}" role="img" aria-label="{titulo}">',
             '<rect width="100%" height="100%" fill="white"/>',
-            '<text x="20" y="30" font-family="system-ui" font-size="19" font-weight="700" fill="#0f172a">Faturação por produto</text>',
+            f'<text x="20" y="30" font-family="system-ui" font-size="19" font-weight="700" fill="#0f172a">{titulo}</text>',
         ]
 
         for indice, item in enumerate(selecionados):
@@ -120,7 +124,9 @@ class RelatorioHTMLService:
         return RelatorioHTMLService._svg_base64("".join(elementos))
 
     @staticmethod
-    def _grafico_mensal(meses: list[dict]) -> str | None:
+    def _grafico_mensal(
+        meses: list[dict], idioma: str = "pt",
+    ) -> str | None:
         if not meses:
             return None
 
@@ -139,10 +145,11 @@ class RelatorioHTMLService:
             y = topo + area_y * (1 - item["faturacao_total"] / maior_valor)
             pontos.append((x, y, item))
 
+        titulo = escape(tr_for(idioma, "Evolução mensal da faturação"))
         elementos = [
-            f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {largura} {altura}" role="img" aria-label="Evolução mensal da faturação">',
+            f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {largura} {altura}" role="img" aria-label="{titulo}">',
             '<rect width="100%" height="100%" fill="white"/>',
-            '<text x="20" y="30" font-family="system-ui" font-size="19" font-weight="700" fill="#0f172a">Evolução mensal da faturação</text>',
+            f'<text x="20" y="30" font-family="system-ui" font-size="19" font-weight="700" fill="#0f172a">{titulo}</text>',
         ]
 
         for fracao in (0, 0.25, 0.5, 0.75, 1):
@@ -219,14 +226,20 @@ class RelatorioHTMLService:
         caminho_saida: str | Path | None = None,
         data_inicio: date | datetime | None = None,
         data_fim: date | datetime | None = None,
-        titulo: str = "Relatório Comercial",
+        titulo: str | None = None,
         limite_pedidos: int = 20,
         limite_importacoes: int = 10,
+        idioma: str | None = None,
     ) -> Path:
         if limite_pedidos <= 0:
             raise ValueError("O limite de pedidos deve ser superior a zero.")
         if limite_importacoes <= 0:
             raise ValueError("O limite de importações deve ser superior a zero.")
+
+        idioma_relatorio = normalizar_idioma(idioma or get_language())
+        traduzir = lambda texto, **valores: tr_for(
+            idioma_relatorio, texto, **valores,
+        )
 
         inicio, fim = FaturacaoService._normalizar_periodo(
             data_inicio,
@@ -276,9 +289,11 @@ class RelatorioHTMLService:
         ambiente.filters["datahora"] = (
             RelatorioHTMLService._formatar_datetime
         )
+        ambiente.globals["t"] = traduzir
         template = ambiente.get_template("relatorio_comercial.html")
         conteudo = template.render(
-            titulo=titulo.strip() or "Relatório Comercial",
+            idioma=idioma_relatorio,
+            titulo=(titulo or "").strip() or traduzir("Relatório Comercial"),
             logo_data_uri=RelatorioHTMLService._imagem_base64(
                 BRAND_LOGO_PATH
             ),
@@ -297,8 +312,12 @@ class RelatorioHTMLService:
             meses=meses,
             pedidos=pedidos,
             importacoes=importacoes,
-            grafico_produtos=RelatorioHTMLService._grafico_produtos(produtos),
-            grafico_mensal=RelatorioHTMLService._grafico_mensal(meses),
+            grafico_produtos=RelatorioHTMLService._grafico_produtos(
+                produtos, idioma_relatorio,
+            ),
+            grafico_mensal=RelatorioHTMLService._grafico_mensal(
+                meses, idioma_relatorio,
+            ),
         )
 
         caminho_temporario = caminho.with_suffix(".tmp")

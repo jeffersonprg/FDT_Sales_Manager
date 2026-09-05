@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import customtkinter as ctk
 
+from src.i18n import tr
 from src.models.item_pedido import ItemPedido
 from src.models.pedido import Pedido
 from src.presentation import (
@@ -24,7 +25,7 @@ class OrderDialog(ctk.CTkToplevel):
 
     def __init__(self, master, clientes, produtos, on_submit):
         super().__init__(master)
-        self.title("Novo pedido")
+        self.title(tr("Novo pedido"))
         self.geometry("860x760")
         self.minsize(760, 650)
         self.configure(fg_color=COLORS["background"])
@@ -53,11 +54,11 @@ class OrderDialog(ctk.CTkToplevel):
         header = ctk.CTkFrame(self, fg_color=COLORS["navy"], corner_radius=0)
         header.grid(row=0, column=0, sticky="ew")
         ctk.CTkLabel(
-            header, text="Novo pedido", anchor="w", text_color="white",
+            header, text=tr("Novo pedido"), anchor="w", text_color="white",
             font=(FONT_FAMILY, 22, "bold"),
         ).pack(fill="x", padx=26, pady=(20, 2))
         ctk.CTkLabel(
-            header, text="Escolha o cliente e adicione pelo menos um produto.",
+            header, text=tr("Escolha o cliente e adicione pelo menos um produto."),
             anchor="w", text_color=COLORS["header_muted"], font=(FONT_FAMILY, 11),
         ).pack(fill="x", padx=26, pady=(0, 20))
 
@@ -66,7 +67,7 @@ class OrderDialog(ctk.CTkToplevel):
         panel.grid(row=1, column=0, sticky="ew", padx=22, pady=(18, 10))
         panel.grid_columnconfigure((0, 1), weight=1)
         self.cliente = self._combo_field(
-            panel, 0, "Cliente *", tuple(self.clientes) or ("— Sem clientes ativos —",)
+            panel, 0, tr("Cliente *"), tuple(self.clientes) or (tr("— Sem clientes ativos —"),)
         )
         self.referencia = self._entry_field(panel, 1, "Referência externa")
         self.observacoes = self._entry_field(panel, 2, "Observações", columnspan=2)
@@ -77,7 +78,7 @@ class OrderDialog(ctk.CTkToplevel):
         panel.grid_columnconfigure(0, weight=1)
         panel.grid_rowconfigure(2, weight=1)
         ctk.CTkLabel(
-            panel, text="Itens do pedido", anchor="w", text_color=COLORS["text"],
+            panel, text=tr("Itens do pedido"), anchor="w", text_color=COLORS["text"],
             font=(FONT_FAMILY, 16, "bold"),
         ).grid(row=0, column=0, sticky="ew", padx=18, pady=(16, 8))
 
@@ -85,7 +86,7 @@ class OrderDialog(ctk.CTkToplevel):
         composer.grid(row=1, column=0, sticky="ew", padx=18, pady=(0, 10))
         composer.grid_columnconfigure(0, weight=1)
         self.produto = ctk.CTkComboBox(
-            composer, values=list(self.produtos) or ["— Sem produtos ativos —"],
+            composer, values=list(self.produtos) or [tr("— Sem produtos ativos —")],
             height=38, state="readonly", command=self._produto_alterado,
         )
         self.produto.grid(row=0, column=0, sticky="ew")
@@ -95,7 +96,7 @@ class OrderDialog(ctk.CTkToplevel):
         self.preco = ctk.CTkEntry(composer, width=120, height=38)
         self.preco.grid(row=0, column=2, padx=(10, 0))
         ctk.CTkButton(
-            composer, text="Adicionar", width=105, height=38, command=self.adicionar_item,
+            composer, text=tr("Adicionar"), width=105, height=38, command=self.adicionar_item,
             fg_color=COLORS["blue"], hover_color=COLORS["blue_hover"],
         ).grid(row=0, column=3, padx=(10, 0))
         if self.produtos:
@@ -111,12 +112,12 @@ class OrderDialog(ctk.CTkToplevel):
         actions.grid(row=3, column=0, sticky="ew", padx=18, pady=12)
         actions.grid_columnconfigure(0, weight=1)
         self.total = ctk.CTkLabel(
-            actions, text="Total: € 0,00", anchor="w",
+            actions, text=f"{tr('Total')}: € 0,00", anchor="w",
             font=(FONT_FAMILY, 16, "bold"), text_color=COLORS["text"],
         )
         self.total.grid(row=0, column=0, sticky="ew")
         ctk.CTkButton(
-            actions, text="Remover item", width=120, height=34,
+            actions, text=tr("Remover item"), width=120, height=34,
             command=self.remover_item, fg_color=COLORS["danger"],
             hover_color=COLORS["danger_hover"],
         ).grid(row=0, column=1)
@@ -131,12 +132,12 @@ class OrderDialog(ctk.CTkToplevel):
         )
         self.error.grid(row=0, column=0, columnspan=3, sticky="ew", pady=(0, 8))
         ctk.CTkButton(
-            footer, text="Cancelar", width=110, height=40, command=self.destroy,
+            footer, text=tr("Cancelar"), width=110, height=40, command=self.destroy,
             fg_color=COLORS["surface_alt"], text_color=COLORS["text"],
             hover_color=COLORS["border"],
         ).grid(row=1, column=1, padx=(0, 10))
         ctk.CTkButton(
-            footer, text="Criar pedido", width=130, height=40, command=self._submit,
+            footer, text=tr("Criar pedido"), width=130, height=40, command=self._submit,
             fg_color=COLORS["blue"], hover_color=COLORS["blue_hover"],
             font=(FONT_FAMILY, 12, "bold"),
         ).grid(row=1, column=2)
@@ -144,7 +145,7 @@ class OrderDialog(ctk.CTkToplevel):
     def _combo_field(self, master, column, label, values):
         frame = ctk.CTkFrame(master, fg_color="transparent")
         frame.grid(row=0, column=column, sticky="ew", padx=18, pady=14)
-        ctk.CTkLabel(frame, text=label, anchor="w").pack(fill="x")
+        ctk.CTkLabel(frame, text=tr(label), anchor="w").pack(fill="x")
         combo = ctk.CTkComboBox(frame, values=list(values), height=38, state="readonly")
         combo.pack(fill="x", pady=(5, 0))
         return combo
@@ -152,7 +153,7 @@ class OrderDialog(ctk.CTkToplevel):
     def _entry_field(self, master, row, label, columnspan=1):
         frame = ctk.CTkFrame(master, fg_color="transparent")
         frame.grid(row=row, column=0, columnspan=columnspan, sticky="ew", padx=18, pady=(0, 14))
-        ctk.CTkLabel(frame, text=label, anchor="w").pack(fill="x")
+        ctk.CTkLabel(frame, text=tr(label), anchor="w").pack(fill="x")
         entry = ctk.CTkEntry(frame, height=38)
         entry.pack(fill="x", pady=(5, 0))
         return entry
@@ -184,12 +185,12 @@ class OrderDialog(ctk.CTkToplevel):
             self.error.configure(text="")
             self._refresh_items()
         except Exception as error:
-            self.error.configure(text=str(error))
+            self.error.configure(text=tr(str(error)))
 
     def remover_item(self):
         row = self.table.obter_linha_selecionada()
         if row is None:
-            self.error.configure(text="Selecione primeiro um item na tabela.")
+            self.error.configure(text=tr("Selecione primeiro um item na tabela."))
             return
         produto_id = int(row[0])
         self.itens = [item for item in self.itens if item.produto_id != produto_id]
@@ -204,7 +205,7 @@ class OrderDialog(ctk.CTkToplevel):
             for item in self.itens
         ])
         total = sum(item.subtotal or 0 for item in self.itens)
-        self.total.configure(text=f"Total: {formatar_moeda(total)}")
+        self.total.configure(text=f"{tr('Total')}: {formatar_moeda(total)}")
 
     def _submit(self):
         try:
@@ -220,7 +221,7 @@ class OrderDialog(ctk.CTkToplevel):
             )
             self.on_submit(pedido)
         except Exception as error:
-            self.error.configure(text=str(error))
+            self.error.configure(text=tr(str(error)))
             return
         self.destroy()
 
@@ -230,19 +231,20 @@ class OrderDetailsDialog(ctk.CTkToplevel):
 
     def __init__(self, master, pedido, cliente_nome, produtos):
         super().__init__(master)
-        self.title(f"Pedido #{pedido.id}")
+        self.title(tr("Pedido #{id}", id=pedido.id))
         self.geometry("760x560")
         self.configure(fg_color=COLORS["background"])
         self.transient(master.winfo_toplevel())
         self.grid_columnconfigure(0, weight=1)
         self.grid_rowconfigure(2, weight=1)
         ctk.CTkLabel(
-            self, text=f"Pedido #{pedido.id}", anchor="w",
+            self, text=tr("Pedido #{id}", id=pedido.id), anchor="w",
             font=(FONT_FAMILY, 22, "bold"), text_color=COLORS["text"],
         ).grid(row=0, column=0, sticky="ew", padx=24, pady=(22, 4))
-        resumo = (
-            f"Cliente: {cliente_nome}   ·   Estado: {pedido.estado}   ·   "
-            f"Data: {formatar_data(pedido.data_pedido)}   ·   Total: {formatar_moeda(pedido.total)}"
+        resumo = tr(
+            "Cliente: {customer}   ·   Estado: {status}   ·   Data: {date}   ·   Total: {total}",
+            customer=cliente_nome, status=tr(pedido.estado),
+            date=formatar_data(pedido.data_pedido), total=formatar_moeda(pedido.total),
         )
         ctk.CTkLabel(
             self, text=resumo, anchor="w", text_color=COLORS["muted"],
@@ -255,19 +257,19 @@ class OrderDetailsDialog(ctk.CTkToplevel):
         table.grid(row=2, column=0, sticky="nsew", padx=24)
         table.definir_linhas([
             (
-                produtos.get(item.produto_id, f"Produto #{item.produto_id}"),
+                produtos.get(item.produto_id, tr("Produto #{id}", id=item.produto_id)),
                 item.quantidade, formatar_moeda(item.preco_unitario),
                 formatar_moeda(item.subtotal),
-                "Cancelado" if pedido.estado == "CANCELADO" else (
-                    "Aguarda pagamento" if item.inicio_acesso is None else (
-                    f"Desde {formatar_data(item.inicio_acesso)}" if item.fim_acesso is None
-                    else f"{formatar_data(item.inicio_acesso)} a {formatar_data(item.fim_acesso)}"
+                tr("Cancelado") if pedido.estado == "CANCELADO" else (
+                    tr("Aguarda pagamento") if item.inicio_acesso is None else (
+                    tr("Desde {date}", date=formatar_data(item.inicio_acesso)) if item.fim_acesso is None
+                    else tr("{start} a {end}", start=formatar_data(item.inicio_acesso), end=formatar_data(item.fim_acesso))
                     )
                 ),
             ) for item in pedido.itens
         ])
         ctk.CTkButton(
-            self, text="Fechar", width=110, command=self.destroy,
+            self, text=tr("Fechar"), width=110, command=self.destroy,
             fg_color=COLORS["navy"], hover_color=COLORS["navy_hover"],
         ).grid(row=3, column=0, sticky="e", padx=24, pady=20)
         self.bind("<Escape>", lambda _event: self.destroy())

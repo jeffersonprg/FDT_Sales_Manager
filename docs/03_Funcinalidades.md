@@ -70,6 +70,8 @@
 - [x] Filtrar faturação e pedidos por período
 - [x] Incluir histórico de importações CSV
 - [x] Gerar arquivo autônomo e responsivo
+- [x] Selecionar visualmente as datas inicial e final do relatório
+- [x] Exibir e aceitar datas da interface no formato DD/MM/AAAA
 
 ## Interface gráfica
 

@@ -26,6 +26,8 @@ O backend do MiniCRM está concluído e coberto por testes automatizados:
 - importação CSV transacional e idempotente;
 - relatórios HTML autônomos com indicadores, tabelas e gráficos;
 - interface gráfica com navegação, dashboard e consultas comerciais;
+- interface disponível em Português, Inglês e Espanhol, com seleção persistente nas configurações;
+- relatórios HTML gerados no idioma selecionado, incluindo gráficos e tabelas;
 - migrações incrementais do banco de dados.
 
 A distribuição Windows foi gerada e validada. A próxima etapa é a validação
@@ -50,7 +52,7 @@ instalação de Python removida; recrie-o como `.venv` com os comandos acima.
 .\.venv\Scripts\python.exe -m pytest -q
 ```
 
-Estado atual: **156 testes aprovados**.
+Estado atual: **168 testes aprovados**.
 
 ## Interface gráfica
 
@@ -102,6 +104,9 @@ próprio HTML.
 Também é possível limitar o período com `--inicio AAAA-MM-DD` e
 `--fim AAAA-MM-DD`.
 
+Na interface gráfica, as datas podem ser digitadas no formato `DD/MM/AAAA` ou
+selecionadas num calendário. O formato ISO continua aceito por compatibilidade.
+
 ## Distribuição Windows
 
 A configuração do PyInstaller gera uma distribuição em pasta. Na versão
@@ -116,6 +121,6 @@ powershell -ExecutionPolicy Bypass -File .\scripts\build_release.ps1
 ```
 
 O resultado é criado em `dist\FDT Sales Manager`. A distribuição foi validada
-em 03/09/2026 com PyInstaller 6.22.2: a janela abriu corretamente e criou um
+em 05/09/2026 com PyInstaller 6.22.2: a janela abriu corretamente e criou um
 banco isolado e íntegro. O script interrompe o processo com uma mensagem clara
 quando o ambiente está ausente ou inválido.

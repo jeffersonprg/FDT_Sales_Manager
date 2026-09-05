@@ -21,7 +21,8 @@ def main() -> None:
     parser.add_argument("--saida", type=Path)
     parser.add_argument("--inicio", type=_data_iso)
     parser.add_argument("--fim", type=_data_iso)
-    parser.add_argument("--titulo", default="Relatório Comercial")
+    parser.add_argument("--titulo")
+    parser.add_argument("--idioma", choices=("pt", "en", "es"))
     args = parser.parse_args()
 
     caminho = RelatorioHTMLService.gerar(
@@ -29,6 +30,7 @@ def main() -> None:
         data_inicio=args.inicio,
         data_fim=args.fim,
         titulo=args.titulo,
+        idioma=args.idioma,
     )
     print(caminho)
 

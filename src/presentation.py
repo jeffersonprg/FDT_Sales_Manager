@@ -5,6 +5,8 @@ from __future__ import annotations
 from datetime import date, datetime
 from typing import Any
 
+from src.i18n import tr
+
 
 NAVIGATION_ITEMS = (
     ("dashboard", "Dashboard", "▦"),
@@ -42,13 +44,17 @@ def formatar_texto(valor: Any) -> str:
 
 
 def interpretar_data_filtro(valor: str) -> date | None:
+    """Lê a data amigável da interface e mantém compatibilidade com o formato antigo."""
+
     texto = valor.strip()
     if not texto:
         return None
-    try:
-        return date.fromisoformat(texto)
-    except ValueError as error:
-        raise ValueError("Use datas no formato AAAA-MM-DD.") from error
+    for formato in ("%d/%m/%Y", "%Y-%m-%d"):
+        try:
+            return datetime.strptime(texto, formato).date()
+        except ValueError:
+            continue
+    raise ValueError("Use datas no formato DD/MM/AAAA.")
 
 
 def interpretar_datetime_evento(valor: str) -> datetime | None:
@@ -110,12 +116,12 @@ def montar_dashboard(resumo: dict) -> dict:
 
     produto = resumo.get("produto_mais_vendido")
     cards = (
-        ("Clientes ativos", str(resumo.get("total_clientes", 0)), "base atual"),
-        ("Produtos ativos", str(resumo.get("total_produtos_ativos", 0)), "catálogo"),
-        ("Leads abertos", str(resumo.get("leads_abertos", 0)), "em acompanhamento"),
-        ("Pedidos pagos", str(resumo.get("pedidos_pagos", 0)), "concluídos"),
-        ("Faturação", formatar_moeda(resumo.get("faturacao_total")), "total pago"),
-        ("Ticket médio", formatar_moeda(resumo.get("ticket_medio")), "por pedido pago"),
+        (tr("Clientes ativos"), str(resumo.get("total_clientes", 0)), tr("base atual")),
+        (tr("Produtos ativos"), str(resumo.get("total_produtos_ativos", 0)), tr("catálogo")),
+        (tr("Leads abertos"), str(resumo.get("leads_abertos", 0)), tr("em acompanhamento")),
+        (tr("Pedidos pagos"), str(resumo.get("pedidos_pagos", 0)), tr("concluídos")),
+        (tr("Faturação"), formatar_moeda(resumo.get("faturacao_total")), tr("total pago")),
+        (tr("Ticket médio"), formatar_moeda(resumo.get("ticket_medio")), tr("por pedido pago")),
     )
     pedidos = []
     for pedido in resumo.get("ultimos_pedidos", []):
@@ -129,8 +135,9 @@ def montar_dashboard(resumo: dict) -> dict:
     return {
         "cards": cards,
         "taxa_conversao": f"{float(resumo.get('taxa_conversao', 0)):.1f}%",
-        "produto_destaque": "Nenhuma venda registada" if produto is None else (
-            f"{produto['produto_nome']} · {produto['quantidade_vendida']} vendidos"
+        "produto_destaque": tr("Nenhuma venda registada") if produto is None else (
+            tr("{product} · {quantity} vendidos", product=produto['produto_nome'],
+               quantity=produto['quantidade_vendida'])
         ),
         "pedidos": pedidos,
     }

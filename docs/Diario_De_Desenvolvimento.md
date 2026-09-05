@@ -1226,3 +1226,72 @@ Resultado da suíte completa:
 
 Executar a aceitação funcional com uma cópia dos dados reais e preparar a
 entrega da pasta `dist\FDT Sales Manager` ao utilizador final.
+
+# 04/09/2026 - Seletor visual de datas nos relatórios
+
+## Objetivo
+
+Facilitar a definição do período do relatório, permitindo escolher as datas
+num calendário e apresentando-as no formato habitual `DD/MM/AAAA`.
+
+## Atividades realizadas
+
+- Criado um calendário nativo em CustomTkinter, sem nova dependência externa.
+- Adicionada navegação para o mês anterior e seguinte.
+- Destacadas a data selecionada e a data atual.
+- Adicionados os comandos `Hoje` e `Limpar`.
+- Integrado um botão compacto com ícone de calendário aos campos de início e
+  fim.
+- Mantida a possibilidade de digitação manual.
+- Adicionadas traduções em português, inglês e espanhol.
+- Incluídos comentários e docstrings para explicar a montagem e a navegação do
+  componente.
+
+## Validação
+
+- A tela de relatórios foi verificada visualmente sem sobreposição dos campos.
+- Datas em `DD/MM/AAAA` são convertidas corretamente para o domínio.
+- Datas antigas em `AAAA-MM-DD` continuam aceitas.
+- Datas inexistentes apresentam uma mensagem com o formato correto.
+
+Resultado da suíte completa:
+
+```text
+168 passed
+```
+
+## Próxima atividade
+
+Fechar a pasta da distribuição que está aberta no Explorador, gerar novamente
+a distribuição Windows e validar o calendário no executável.
+
+# 05/09/2026 - Build do seletor de datas
+
+## Objetivo
+
+Gerar a distribuição Windows com o novo calendário e disponibilizar o
+executável final para a validação do utilizador.
+
+## Atividades realizadas
+
+- Confirmado que não havia instâncias do FDT Sales Manager em execução.
+- Gerada uma compilação limpa numa pasta de estágio para contornar o bloqueio
+  mantido pelo Explorador de Arquivos sobre a pasta final.
+- Validada a presença do executável e do template do relatório no pacote.
+- Copiados os 1.689 arquivos validados para `dist\FDT Sales Manager`.
+- Removidas as pastas temporárias do build e do teste.
+
+## Validação
+
+- O pacote final ocupa aproximadamente 87,5 MB.
+- O executável abriu com o título `TSS Invest · FDT Sales Manager`.
+- Um banco isolado foi criado corretamente durante o teste de arranque.
+- O processo de teste foi encerrado sem alterar os dados reais.
+- SHA-256 do executável:
+  `F6BFE5CBED98FF9830AD9B7C476684FF22C92A26E0A496ED208BC2B2809B8846`.
+- A suíte executada antes do empacotamento terminou com 168 testes aprovados.
+
+## Próxima atividade
+
+Validar manualmente a abertura do calendário, a seleção das datas inicial e
+final e a geração do relatório no executável distribuído.

@@ -9,8 +9,9 @@ from tkinter import filedialog
 import customtkinter as ctk
 
 from src.config.paths import REPORTS_DIR
-from src.presentation import formatar_moeda, interpretar_data_filtro
-from src.views.components import PageHeader, StatusBanner
+from src.i18n import tr
+from src.presentation import formatar_data, formatar_moeda, interpretar_data_filtro
+from src.views.components import DatePickerDialog, PageHeader, StatusBanner
 from src.views.theme import COLORS, FONT_FAMILY
 
 
@@ -34,7 +35,7 @@ class ToolView(ctk.CTkFrame):
 
     def _label(self, texto, row):
         ctk.CTkLabel(
-            self.panel, text=texto, anchor="w", font=(FONT_FAMILY, 12, "bold"),
+            self.panel, text=tr(texto), anchor="w", font=(FONT_FAMILY, 12, "bold"),
             text_color=COLORS["text"],
         ).grid(row=row, column=0, sticky="ew", padx=22, pady=(16, 6))
 
@@ -46,20 +47,20 @@ class CSVImportView(ToolView):
         line = ctk.CTkFrame(self.panel, fg_color="transparent")
         line.grid(row=1, column=0, sticky="ew", padx=22)
         line.grid_columnconfigure(0, weight=1)
-        self.path = ctk.CTkEntry(line, height=40, placeholder_text="Selecione um arquivo .csv")
+        self.path = ctk.CTkEntry(line, height=40, placeholder_text=tr("Selecione um arquivo .csv"))
         self.path.grid(row=0, column=0, sticky="ew")
-        ctk.CTkButton(line, text="Procurar", width=100, height=40, command=self.selecionar).grid(
+        ctk.CTkButton(line, text=tr("Procurar"), width=100, height=40, command=self.selecionar).grid(
             row=0, column=1, padx=(10, 0)
         )
         ctk.CTkButton(
-            self.panel, text="Importar vendas", height=42, command=self.importar,
+            self.panel, text=tr("Importar vendas"), height=42, command=self.importar,
             fg_color=COLORS["blue"], hover_color=COLORS["blue_hover"],
             font=(FONT_FAMILY, 13, "bold"),
         ).grid(row=2, column=0, sticky="w", padx=22, pady=22)
         self.status.mostrar("Selecione o CSV. A importação é transacional e evita duplicações.")
 
     def selecionar(self):
-        caminho = filedialog.askopenfilename(filetypes=[("Arquivos CSV", "*.csv")])
+        caminho = filedialog.askopenfilename(filetypes=[(tr("Arquivos CSV"), "*.csv")])
         if caminho:
             self.path.delete(0, "end")
             self.path.insert(0, caminho)
@@ -70,10 +71,10 @@ class CSVImportView(ToolView):
             from src.services.importacao_csv_service import ImportacaoCSVService
 
             resumo = ImportacaoCSVService().importar(self.path.get().strip())
-            texto = (
-                f"Importação concluída: {resumo.pedidos_criados} pedidos, "
-                f"{resumo.clientes_criados} clientes e "
-                f"{formatar_moeda(resumo.faturacao_importada)}."
+            texto = tr(
+                "Importação concluída: {orders} pedidos, {customers} clientes e {revenue}.",
+                orders=resumo.pedidos_criados, customers=resumo.clientes_criados,
+                revenue=formatar_moeda(resumo.faturacao_importada),
             )
             if resumo.arquivo_ja_importado:
                 texto = "Este arquivo já foi importado anteriormente; nenhum dado foi duplicado."
@@ -93,16 +94,17 @@ class ReportsView(ToolView):
         self.path.grid(row=0, column=0, sticky="ew")
         default = REPORTS_DIR / f"relatorio_{date.today():%Y%m%d}.html"
         self.path.insert(0, str(default))
-        ctk.CTkButton(output, text="Procurar", width=100, height=40, command=self.selecionar).grid(
+        ctk.CTkButton(output, text=tr("Procurar"), width=100, height=40, command=self.selecionar).grid(
             row=0, column=1, padx=(10, 0)
         )
         dates = ctk.CTkFrame(self.panel, fg_color="transparent")
         dates.grid(row=2, column=0, sticky="ew", padx=22, pady=(16, 0))
         dates.grid_columnconfigure((0, 1), weight=1)
-        self.inicio = self._date_field(dates, 0, "Data inicial (AAAA-MM-DD)")
-        self.fim = self._date_field(dates, 1, "Data final (AAAA-MM-DD)")
+        self.inicio = self._date_field(dates, 0, "Data inicial (DD/MM/AAAA)")
+        self.fim = self._date_field(dates, 1, "Data final (DD/MM/AAAA)")
         ctk.CTkButton(
-            self.panel, text="Gerar e abrir relatório", height=42, command=self.gerar,
+            self.panel, text=tr("Gerar e abrir relatório completo"), height=42,
+            command=self.gerar,
             fg_color=COLORS["blue"], hover_color=COLORS["blue_hover"],
             font=(FONT_FAMILY, 13, "bold"),
         ).grid(row=3, column=0, sticky="w", padx=22, pady=22)
@@ -111,14 +113,39 @@ class ReportsView(ToolView):
     def _date_field(self, master, column, label):
         frame = ctk.CTkFrame(master, fg_color="transparent")
         frame.grid(row=0, column=column, sticky="ew", padx=(0, 8) if column == 0 else (8, 0))
-        ctk.CTkLabel(frame, text=label, anchor="w", text_color=COLORS["muted"]).pack(fill="x")
-        entry = ctk.CTkEntry(frame, height=38)
-        entry.pack(fill="x", pady=(5, 0))
+        ctk.CTkLabel(frame, text=tr(label), anchor="w", text_color=COLORS["muted"]).pack(fill="x")
+        line = ctk.CTkFrame(frame, fg_color="transparent")
+        line.pack(fill="x", pady=(5, 0))
+        line.grid_columnconfigure(0, weight=1)
+        entry = ctk.CTkEntry(line, height=38, placeholder_text="DD/MM/AAAA")
+        entry.grid(row=0, column=0, sticky="ew")
+        ctk.CTkButton(
+            # O ícone mantém o filtro compacto quando os dois campos ficam lado a lado.
+            line, text="📅", width=44, height=38,
+            command=lambda: self._open_calendar(entry),
+            fg_color=COLORS["surface_alt"], text_color=COLORS["text"],
+            hover_color=COLORS["border"], font=(FONT_FAMILY, 16),
+        ).grid(row=0, column=1, padx=(8, 0))
         return entry
+
+    def _open_calendar(self, entry):
+        """Abre no mês digitado ou no mês atual quando o campo está vazio ou inválido."""
+
+        try:
+            initial_date = interpretar_data_filtro(entry.get())
+        except ValueError:
+            initial_date = None
+
+        def apply_date(selected_date):
+            entry.delete(0, "end")
+            if selected_date is not None:
+                entry.insert(0, formatar_data(selected_date))
+
+        self.calendar_dialog = DatePickerDialog(self, initial_date, apply_date)
 
     def selecionar(self):
         caminho = filedialog.asksaveasfilename(
-            defaultextension=".html", filetypes=[("Relatório HTML", "*.html")]
+            defaultextension=".html", filetypes=[(tr("Relatório HTML"), "*.html")]
         )
         if caminho:
             self.path.delete(0, "end")
@@ -135,6 +162,6 @@ class ReportsView(ToolView):
                 caminho_saida=self.path.get().strip(), data_inicio=inicio, data_fim=fim,
             )
             webbrowser.open(caminho.as_uri())
-            self.status.mostrar(f"Relatório gerado em {caminho}", "success")
+            self.status.mostrar(tr("Relatório gerado em {path}", path=caminho), "success")
         except Exception as error:
             self.status.mostrar(str(error), "error")

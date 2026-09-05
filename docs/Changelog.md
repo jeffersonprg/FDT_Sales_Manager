@@ -1,5 +1,25 @@
 # Changelog
 
+## [Idioma espanhol] — 04/09/2026
+
+### Adicionado
+
+- Espanhol como terceira opção de idioma da interface.
+- Traduções para navegação, formulários, tabelas, estados e mensagens comerciais.
+- Geração dos relatórios HTML em Português, Inglês ou Espanhol conforme a preferência ativa.
+
+____
+
+## [Seleção de idioma] — 03/09/2026
+
+### Adicionado
+
+- Seleção entre Português e Inglês nas configurações.
+- Atualização imediata da interface ao trocar o idioma, sem duplicar dados ou telas.
+- Persistência conjunta das preferências de idioma e tema.
+
+____
+
 ## v0.1.0
 
 ### Adicionado
@@ -234,3 +254,36 @@ ____
 - Banco isolado criado com integridade SQLite confirmada.
 - Nenhuma violação de chave estrangeira encontrada.
 - 156 testes automatizados aprovados.
+
+## [Seletor de datas dos relatórios] — 04/09/2026
+
+### Adicionado
+
+- Calendário visual para os filtros de data inicial e final.
+- Botão compacto com ícone de calendário ao lado de cada campo.
+- Navegação entre meses e seleção direta de um dia.
+- Ações para selecionar a data atual ou limpar o campo.
+- Traduções do seletor para português, inglês e espanhol.
+
+### Alterado
+
+- As datas digitadas na interface passam a usar `DD/MM/AAAA`.
+- O botão textual foi substituído por um ícone para reduzir a poluição visual.
+- O formato anterior `AAAA-MM-DD` permanece aceito por compatibilidade.
+
+### Testes
+
+- 168 testes automatizados aprovados.
+
+## [Distribuição com seletor de datas] — 05/09/2026
+
+### Adicionado
+
+- Nova distribuição Windows contendo o calendário dos relatórios.
+- Botão compacto `📅` ao lado dos filtros inicial e final.
+
+### Validação
+
+- Pacote gerado numa pasta de estágio e copiado para o `dist` final.
+- Executável aberto com banco isolado e janela principal confirmada.
+- 168 testes automatizados aprovados antes do empacotamento.

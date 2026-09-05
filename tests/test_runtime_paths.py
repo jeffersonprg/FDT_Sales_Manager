@@ -1,5 +1,7 @@
 from pathlib import Path
 
+from PIL import Image
+
 from src.config.paths import (
     APP_ICON_ICO_PATH,
     APP_ICON_PATH,
@@ -33,3 +35,10 @@ def test_ativos_da_marca_estao_disponiveis():
     assert BRAND_LOGO_PATH.is_file()
     assert APP_ICON_PATH.is_file()
     assert APP_ICON_ICO_PATH.is_file()
+
+    with Image.open(APP_ICON_PATH) as icone_png:
+        assert icone_png.size == (256, 256)
+
+    with Image.open(APP_ICON_ICO_PATH) as icone_windows:
+        assert icone_windows.format == "ICO"
+        assert (256, 256) in icone_windows.info["sizes"]

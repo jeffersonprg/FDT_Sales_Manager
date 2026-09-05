@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="pt">
+<html lang="{{ idioma }}">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -95,70 +95,70 @@
           <p class="eyebrow">TSS Invest · FDT Sales Manager</p>
           <h1>{{ titulo }}</h1>
           <div class="meta">
-            <span>Gerado em {{ gerado_em|datahora }}</span>
-            <span>Período: {{ periodo_inicio|data }} — {{ periodo_fim|data }}</span>
+            <span>{{ t("Gerado em") }} {{ gerado_em|datahora }}</span>
+            <span>{{ t("Período") }}: {{ periodo_inicio|data }} — {{ periodo_fim|data }}</span>
           </div>
         </div>
       </div>
     </header>
 
     <section aria-labelledby="visao-geral">
-      <h2 id="visao-geral">Visão geral</h2>
+      <h2 id="visao-geral">{{ t("Visão geral") }}</h2>
       <div class="cards">
-        <article class="card"><span class="label">Faturação</span><strong class="value">{{ faturacao.faturacao_total|moeda }}</strong><span class="note">Pedidos pagos no período</span></article>
-        <article class="card"><span class="label">Pedidos pagos</span><strong class="value">{{ faturacao.total_pedidos_pagos }}</strong><span class="note">Ticket médio {{ faturacao.ticket_medio|moeda }}</span></article>
-        <article class="card"><span class="label">Quantidade vendida</span><strong class="value">{{ estatisticas.quantidade_vendida }}</strong><span class="note">Unidades em pedidos pagos</span></article>
-        <article class="card"><span class="label">Clientes ativos</span><strong class="value">{{ dashboard.total_clientes }}</strong><span class="note">{{ dashboard.total_clientes_inativos }} inativos</span></article>
-        <article class="card"><span class="label">Produtos ativos</span><strong class="value">{{ dashboard.total_produtos_ativos }}</strong></article>
-        <article class="card"><span class="label">Leads abertos</span><strong class="value">{{ dashboard.leads_abertos }}</strong><span class="note">{{ dashboard.taxa_conversao }}% de conversão</span></article>
-        <article class="card"><span class="label">Primeiro pagamento</span><strong class="value" style="font-size:21px">{{ faturacao.primeiro_pagamento|data }}</strong></article>
-        <article class="card"><span class="label">Último pagamento</span><strong class="value" style="font-size:21px">{{ faturacao.ultimo_pagamento|data }}</strong></article>
+        <article class="card"><span class="label">{{ t("Faturação") }}</span><strong class="value">{{ faturacao.faturacao_total|moeda }}</strong><span class="note">{{ t("Pedidos pagos no período") }}</span></article>
+        <article class="card"><span class="label">{{ t("Pedidos pagos") }}</span><strong class="value">{{ faturacao.total_pedidos_pagos }}</strong><span class="note">{{ t("Ticket médio") }} {{ faturacao.ticket_medio|moeda }}</span></article>
+        <article class="card"><span class="label">{{ t("Quantidade vendida") }}</span><strong class="value">{{ estatisticas.quantidade_vendida }}</strong><span class="note">{{ t("Unidades em pedidos pagos") }}</span></article>
+        <article class="card"><span class="label">{{ t("Clientes ativos") }}</span><strong class="value">{{ dashboard.total_clientes }}</strong><span class="note">{{ dashboard.total_clientes_inativos }} {{ t("inativos") }}</span></article>
+        <article class="card"><span class="label">{{ t("Produtos ativos") }}</span><strong class="value">{{ dashboard.total_produtos_ativos }}</strong></article>
+        <article class="card"><span class="label">{{ t("Leads abertos") }}</span><strong class="value">{{ dashboard.leads_abertos }}</strong><span class="note">{{ dashboard.taxa_conversao }}% {{ t("de conversão") }}</span></article>
+        <article class="card"><span class="label">{{ t("Primeiro pagamento") }}</span><strong class="value" style="font-size:21px">{{ faturacao.primeiro_pagamento|data }}</strong></article>
+        <article class="card"><span class="label">{{ t("Último pagamento") }}</span><strong class="value" style="font-size:21px">{{ faturacao.ultimo_pagamento|data }}</strong></article>
       </div>
     </section>
 
     <section aria-labelledby="graficos">
-      <h2 id="graficos">Desempenho comercial</h2>
+      <h2 id="graficos">{{ t("Desempenho comercial") }}</h2>
       <div class="grid-2">
         <article class="panel">
-          {% if grafico_produtos %}<img class="chart" src="data:image/svg+xml;base64,{{ grafico_produtos }}" alt="Gráfico de faturação por produto">{% else %}<div class="empty">Ainda não existem vendas pagas no período.</div>{% endif %}
+          {% if grafico_produtos %}<img class="chart" src="data:image/svg+xml;base64,{{ grafico_produtos }}" alt="{{ t('Gráfico de faturação por produto') }}">{% else %}<div class="empty">{{ t("Ainda não existem vendas pagas no período.") }}</div>{% endif %}
         </article>
         <article class="panel">
-          {% if grafico_mensal %}<img class="chart" src="data:image/svg+xml;base64,{{ grafico_mensal }}" alt="Gráfico de evolução mensal da faturação">{% else %}<div class="empty">Ainda não existe evolução mensal para apresentar.</div>{% endif %}
+          {% if grafico_mensal %}<img class="chart" src="data:image/svg+xml;base64,{{ grafico_mensal }}" alt="{{ t('Gráfico de evolução mensal da faturação') }}">{% else %}<div class="empty">{{ t("Ainda não existe evolução mensal para apresentar.") }}</div>{% endif %}
         </article>
       </div>
     </section>
 
     <section aria-labelledby="produtos">
-      <h2 id="produtos">Vendas por produto</h2>
+      <h2 id="produtos">{{ t("Vendas por produto") }}</h2>
       {% if produtos %}
       <div class="table-wrap"><table>
-        <thead><tr><th>Produto</th><th>Categoria</th><th>Quantidade</th><th>Preço médio</th><th>Faturação</th></tr></thead>
+        <thead><tr><th>{{ t("Produto") }}</th><th>{{ t("Categoria") }}</th><th>{{ t("Quantidade") }}</th><th>{{ t("Preço médio") }}</th><th>{{ t("Faturação") }}</th></tr></thead>
         <tbody>{% for produto in produtos %}<tr><td><strong>{{ produto.produto_nome }}</strong></td><td>{{ produto.categoria or '—' }}</td><td>{{ produto.quantidade_vendida }}</td><td class="money">{{ produto.preco_medio|moeda }}</td><td class="money">{{ produto.faturacao_total|moeda }}</td></tr>{% endfor %}</tbody>
       </table></div>
-      {% else %}<div class="empty">Nenhuma venda por produto no período selecionado.</div>{% endif %}
+      {% else %}<div class="empty">{{ t("Nenhuma venda por produto no período selecionado.") }}</div>{% endif %}
     </section>
 
     <section aria-labelledby="pedidos">
-      <h2 id="pedidos">Pedidos faturados recentes</h2>
+      <h2 id="pedidos">{{ t("Pedidos faturados recentes") }}</h2>
       {% if pedidos %}
       <div class="table-wrap"><table>
-        <thead><tr><th>Referência</th><th>Cliente</th><th>Pagamento</th><th>Itens</th><th>Total</th><th>Estado</th></tr></thead>
-        <tbody>{% for pedido in pedidos %}<tr><td>{{ pedido.referencia_externa or ('#' ~ pedido.id) }}</td><td>{{ pedido.cliente_nome }}</td><td>{{ pedido.pago_em|datahora }}</td><td>{{ pedido.total_itens }}</td><td class="money">{{ pedido.total|moeda }}</td><td><span class="pill">Pago</span></td></tr>{% endfor %}</tbody>
+        <thead><tr><th>{{ t("Referência") }}</th><th>{{ t("Cliente") }}</th><th>{{ t("Pagamento") }}</th><th>{{ t("Itens") }}</th><th>{{ t("Total") }}</th><th>{{ t("Estado") }}</th></tr></thead>
+        <tbody>{% for pedido in pedidos %}<tr><td>{{ pedido.referencia_externa or ('#' ~ pedido.id) }}</td><td>{{ pedido.cliente_nome }}</td><td>{{ pedido.pago_em|datahora }}</td><td>{{ pedido.total_itens }}</td><td class="money">{{ pedido.total|moeda }}</td><td><span class="pill">{{ t("Pago") }}</span></td></tr>{% endfor %}</tbody>
       </table></div>
-      {% else %}<div class="empty">Nenhum pedido faturado no período selecionado.</div>{% endif %}
+      {% else %}<div class="empty">{{ t("Nenhum pedido faturado no período selecionado.") }}</div>{% endif %}
     </section>
 
     <section aria-labelledby="importacoes">
-      <h2 id="importacoes">Histórico de importações CSV</h2>
+      <h2 id="importacoes">{{ t("Histórico de importações CSV") }}</h2>
       {% if importacoes %}
       <div class="table-wrap"><table>
-        <thead><tr><th>Arquivo</th><th>Data</th><th>Linhas</th><th>Pedidos</th><th>Itens</th><th>Faturação</th></tr></thead>
+        <thead><tr><th>{{ t("Arquivo") }}</th><th>{{ t("Data") }}</th><th>{{ t("Linhas") }}</th><th>{{ t("Pedidos") }}</th><th>{{ t("Itens") }}</th><th>{{ t("Faturação") }}</th></tr></thead>
         <tbody>{% for item in importacoes %}<tr><td>{{ item.nome_arquivo }}</td><td>{{ item.importado_em|datahora }}</td><td>{{ item.total_linhas }}</td><td>{{ item.pedidos_criados }}</td><td>{{ item.itens_criados }}</td><td class="money">{{ item.faturacao_importada|moeda }}</td></tr>{% endfor %}</tbody>
       </table></div>
-      {% else %}<div class="empty">Nenhum arquivo CSV foi importado nesta base.</div>{% endif %}
+      {% else %}<div class="empty">{{ t("Nenhum arquivo CSV foi importado nesta base.") }}</div>{% endif %}
     </section>
 
-    <footer class="footer">Relatório gerado automaticamente pelo FDT Sales Manager. Os valores representam pedidos atualmente no estado PAGO.</footer>
+    <footer class="footer">{{ t("Relatório gerado automaticamente pelo FDT Sales Manager. Os valores representam pedidos atualmente no estado PAGO.") }}</footer>
   </main>
 </body>
 </html>

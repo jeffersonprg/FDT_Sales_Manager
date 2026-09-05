@@ -3,8 +3,14 @@
 import customtkinter as ctk
 from PIL import Image, ImageTk
 
-from src.config.paths import APP_ICON_PATH, BRAND_LOGO_PATH, BRAND_NAME
-from src.config.preferences import guardar_tema
+from src.config.paths import (
+    APP_ICON_ICO_PATH,
+    APP_ICON_PATH,
+    BRAND_LOGO_PATH,
+    BRAND_NAME,
+)
+from src.config.preferences import guardar_idioma, guardar_tema
+from src.i18n import set_language, tr
 from src.presentation import NAVIGATION_ITEMS
 from src.views.components import DataTable
 from src.views.dashboard_view import DashboardView
@@ -38,6 +44,7 @@ class MainWindow(ctk.CTk):
         self.grid_rowconfigure(0, weight=1)
         self.views = {}
         self.nav_buttons = {}
+        self.sidebar = None
         self._build_sidebar()
         self.content = ctk.CTkFrame(self, fg_color=COLORS["background"], corner_radius=0)
         self.content.grid(row=0, column=1, sticky="nsew")
@@ -53,6 +60,8 @@ class MainWindow(ctk.CTk):
         with Image.open(BRAND_LOGO_PATH) as imagem_logo:
             logo = imagem_logo.copy()
 
+        # Evita que o CustomTkinter restaure o seu ícone genérico após 200 ms.
+        self.iconbitmap(str(APP_ICON_ICO_PATH))
         self._window_icon = ImageTk.PhotoImage(icone)
         self.iconphoto(True, self._window_icon)
         self._sidebar_logo = ctk.CTkImage(
@@ -63,6 +72,7 @@ class MainWindow(ctk.CTk):
 
     def _build_sidebar(self):
         sidebar = ctk.CTkFrame(self, width=232, corner_radius=0, fg_color=COLORS["navy"])
+        self.sidebar = sidebar
         sidebar.grid(row=0, column=0, sticky="nsew")
         sidebar.grid_propagate(False)
         sidebar.grid_rowconfigure(len(NAVIGATION_ITEMS) + 2, weight=1)
@@ -71,7 +81,7 @@ class MainWindow(ctk.CTk):
         ).grid(row=0, column=0, rowspan=2, padx=24, pady=(20, 18))
         for index, (key, label, icon) in enumerate(NAVIGATION_ITEMS, start=2):
             button = ctk.CTkButton(
-                sidebar, text=f"{icon}   {label}", anchor="w", height=42,
+                sidebar, text=f"{icon}   {tr(label)}", anchor="w", height=42,
                 corner_radius=8, fg_color="transparent", hover_color=COLORS["navy_hover"],
                 font=(FONT_FAMILY, 13, "bold"),
                 command=lambda selected=key: self.mostrar_view(selected),
@@ -79,7 +89,7 @@ class MainWindow(ctk.CTk):
             button.grid(row=index, column=0, sticky="ew", padx=14, pady=3)
             self.nav_buttons[key] = button
         ctk.CTkLabel(
-            sidebar, text="MiniCRM · CSV · Relatórios", anchor="w",
+            sidebar, text=tr("MiniCRM · CSV · Relatórios"), anchor="w",
             text_color=COLORS["sidebar_muted"], font=(FONT_FAMILY, 10),
         ).grid(row=len(NAVIGATION_ITEMS) + 3, column=0, sticky="sew", padx=24, pady=20)
 
@@ -89,7 +99,9 @@ class MainWindow(ctk.CTk):
             view.grid_remove()
         if key not in self.views:
             if key == "configuracoes":
-                self.views[key] = SettingsView(self.content, self.alternar_tema)
+                self.views[key] = SettingsView(
+                    self.content, self.alternar_tema, self.alternar_idioma,
+                )
             else:
                 self.views[key] = self.VIEW_FACTORIES[key](self.content)
             self.views[key].grid(row=0, column=0, sticky="nsew")
@@ -106,3 +118,17 @@ class MainWindow(ctk.CTk):
         ctk.set_appearance_mode(theme)
         guardar_tema(theme)
         DataTable.atualizar_todas()
+
+    def alternar_idioma(self, language: str) -> None:
+        """Guarda o idioma e recria somente a camada visual da aplicacao."""
+
+        set_language(language)
+        guardar_idioma(language)
+        for view in self.views.values():
+            view.destroy()
+        self.views.clear()
+        self.nav_buttons.clear()
+        if self.sidebar is not None:
+            self.sidebar.destroy()
+        self._build_sidebar()
+        self.mostrar_view("configuracoes")

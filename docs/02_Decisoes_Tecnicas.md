@@ -48,7 +48,7 @@ O projeto utiliza uma arquitetura modular:
 ## Testes automatizados
 
 Os testes ficam em `tests/` e utilizam um banco SQLite isolado por teste.
-O estado atual é de 156 testes aprovados.
+O estado atual é de 168 testes aprovados.
 
 ## Arquitetura da interface
 
